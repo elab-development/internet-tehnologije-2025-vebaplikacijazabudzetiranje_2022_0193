@@ -1,0 +1,154 @@
+// Prisma Schema za SplitBill aplikaciju
+// 5 modela: User, Group, GroupMember, Expense, ExpenseSplit
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// MODEL 1: User - Korisnik sistema
+// ============================================
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  passwordHash  String   @map("password_hash")
+  name          String
+  emailVerified Boolean  @default(false) @map("email_verified")
+  avatarUrl     String?  @map("avatar_url")
+  role          UserRole @default(USER)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  // Relacije
+  ownedGroups      Group[]        @relation("GroupOwner")
+  memberships      GroupMember[]
+  paidExpenses     Expense[]      @relation("ExpensePayer")
+  expenseSplits    ExpenseSplit[]
+  settlementsFrom  Settlement[]   @relation("SettlementFrom")
+  settlementsTo    Settlement[]   @relation("SettlementTo")
+
+  @@map("users")
+}
+
+// ============================================
+// MODEL 2: Group - Grupa za deljenje troškova
+// ============================================
+model Group {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  ownerId     String   @map("owner_id")
+  inviteCode  String   @unique @default(cuid()) @map("invite_code")
+  isArchived  Boolean  @default(false) @map("is_archived")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relacije
+  owner       User          @relation("GroupOwner", fields: [ownerId], references: [id])
+  members     GroupMember[]
+  expenses    Expense[]
+  settlements Settlement[]
+
+  @@map("groups")
+}
+
+// ============================================
+// MODEL 3: GroupMember - Članstvo u grupi
+// ============================================
+model GroupMember {
+  id        String   @id @default(cuid())
+  groupId   String   @map("group_id")
+  userId    String   @map("user_id")
+  isPending Boolean  @default(true) @map("is_pending")
+  joinedAt  DateTime @default(now()) @map("joined_at")
+
+  // Relacije
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id])
+
+  @@unique([userId, groupId])
+  @@map("group_members")
+}
+
+// ============================================
+// MODEL 4: Expense - Trošak
+// ============================================
+model Expense {
+  id          String          @id @default(cuid())
+  groupId     String          @map("group_id")
+  payerId     String          @map("payer_id")
+  description String
+  amount      Decimal         @db.Decimal(10, 2)
+  category    ExpenseCategory
+  date        DateTime
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+
+  // Relacije
+  group  Group          @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  payer  User           @relation("ExpensePayer", fields: [payerId], references: [id])
+  splits ExpenseSplit[]
+
+  @@map("expenses")
+}
+
+// ============================================
+// MODEL 5: ExpenseSplit - Podela troška
+// ============================================
+model ExpenseSplit {
+  id        String  @id @default(cuid())
+  expenseId String  @map("expense_id")
+  userId    String  @map("user_id")
+  amount    Decimal @db.Decimal(10, 2)
+
+  // Relacije
+  expense Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@map("expense_splits")
+}
+
+// ============================================
+// BONUS MODEL: Settlement - Poravnanje duga
+// (Ne računa se u 5, ali je potreban za funkcionalnost)
+// ============================================
+model Settlement {
+  id         String   @id @default(cuid())
+  groupId    String   @map("group_id")
+  fromUserId String   @map("from_user_id")
+  toUserId   String   @map("to_user_id")
+  amount     Decimal  @db.Decimal(10, 2)
+  date       DateTime
+  comment    String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  // Relacije
+  group    Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  fromUser User  @relation("SettlementFrom", fields: [fromUserId], references: [id])
+  toUser   User  @relation("SettlementTo", fields: [toUserId], references: [id])
+
+  @@map("settlements")
+}
+
+// ============================================
+// ENUMERACIJE
+// ============================================
+enum UserRole {
+  USER   // Obični korisnik
+  EDITOR // Može kreirati grupe
+  ADMIN  // Puna kontrola
+}
+
+enum ExpenseCategory {
+  FOOD
+  TRANSPORT
+  ACCOMMODATION
+  ENTERTAINMENT
+  BILLS
+  OTHER
+}
