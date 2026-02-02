@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth, requireEditor } from '@/lib/auth/api-middleware';
 import { prisma } from '@/lib/db';
-import { handleApiError, createErrorResponse } from '@/lib/utils/api-error';
-import { z } from 'zod';
+import { handleApiError } from '@/lib/utils/api-error';
+import { createGroupSchema } from '@/lib/validations/group';
 
 /**
  * GET /api/groups
- * Lista grupa korisnika (autentifikovani korisnici)
+ * Lista svih grupa korisnika
  */
 export async function GET(req: NextRequest) {
   try {
@@ -34,6 +34,22 @@ export async function GET(req: NextRequest) {
             id: true,
             name: true,
             email: true,
+            avatarUrl: true,
+          },
+        },
+        members: {
+          where: {
+            isPending: false,
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                avatarUrl: true,
+              },
+            },
           },
         },
         _count: {
@@ -61,11 +77,6 @@ export async function GET(req: NextRequest) {
  * POST /api/groups
  * Kreiranje nove grupe (EDITOR ili ADMIN)
  */
-const createGroupSchema = z.object({
-  name: z.string().min(2).max(100),
-  description: z.string().max(500).optional().nullable(),
-});
-
 export async function POST(req: NextRequest) {
   try {
     // Provera da li je korisnik EDITOR ili ADMIN
@@ -102,9 +113,21 @@ export async function POST(req: NextRequest) {
             email: true,
           },
         },
+        members: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
+        },
         _count: {
           select: {
             members: true,
+            expenses: true,
           },
         },
       },
