@@ -10,7 +10,7 @@ import { updateGroupSchema } from '@/lib/validations/group';
  */
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }  // ← PROMENA: params je Promise
 ) {
   try {
     const authCheck = await requireAuth(req);
@@ -20,10 +20,11 @@ export async function GET(
     }
 
     const user = authCheck.user;
+    const { id } = await context.params;  // ← PROMENA: await params
 
     // Pronađi grupu
     const group = await prisma.group.findUnique({
-      where: { id: params.id },
+      where: { id },  // ← Sada radi
       include: {
         owner: {
           select: {
@@ -104,7 +105,7 @@ export async function GET(
  */
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }  // ← PROMENA
 ) {
   try {
     const authCheck = await requireAuth(req);
@@ -114,10 +115,11 @@ export async function PUT(
     }
 
     const user = authCheck.user;
+    const { id } = await context.params;  // ← PROMENA
 
     // Pronađi grupu
     const group = await prisma.group.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!group) {
@@ -138,7 +140,7 @@ export async function PUT(
 
     // Ažuriraj grupu
     const updatedGroup = await prisma.group.update({
-      where: { id: params.id },
+      where: { id },
       data: validatedData,
       include: {
         owner: {
@@ -172,7 +174,7 @@ export async function PUT(
  */
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }  // ← PROMENA
 ) {
   try {
     const authCheck = await requireAuth(req);
@@ -182,10 +184,11 @@ export async function DELETE(
     }
 
     const user = authCheck.user;
+    const { id } = await context.params;  // ← PROMENA
 
     // Pronađi grupu
     const group = await prisma.group.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         _count: {
           select: {
@@ -209,7 +212,7 @@ export async function DELETE(
 
     // Obriši grupu (CASCADE će obrisati members, expenses, splits, settlements)
     await prisma.group.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({

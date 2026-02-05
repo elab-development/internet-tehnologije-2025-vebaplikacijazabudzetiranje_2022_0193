@@ -298,7 +298,7 @@ export default function LandingPage() {
               <span className="text-xl font-bold text-white">SplitBill</span>
             </div>
             <p className="text-sm">
-              © 2024 SplitBill. Web Programming Course Project.
+              © 2026 SplitBill. ITEH.
             </p>
             <p className="text-xs mt-2">
               Built with Next.js, TypeScript, Prisma & PostgreSQL

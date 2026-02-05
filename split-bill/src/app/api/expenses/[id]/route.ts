@@ -10,7 +10,7 @@ import { updateExpenseSchema } from '@/lib/validations/expense';
  */
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }  // ← PROMENA
 ) {
   try {
     const authCheck = await requireAuth(req);
@@ -20,10 +20,11 @@ export async function GET(
     }
 
     const user = authCheck.user;
+    const { id } = await context.params;  // ← PROMENA
 
     // Pronađi trošak
     const expense = await prisma.expense.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         group: {
           select: {
@@ -82,7 +83,7 @@ export async function GET(
  */
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }  // ← PROMENA
 ) {
   try {
     const authCheck = await requireAuth(req);
@@ -92,10 +93,11 @@ export async function PUT(
     }
 
     const user = authCheck.user;
+    const { id } = await context.params;  // ← PROMENA
 
     // Pronađi trošak
     const expense = await prisma.expense.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         group: {
           select: {
@@ -126,7 +128,7 @@ export async function PUT(
 
     // Ažuriraj trošak
     const updatedExpense = await prisma.expense.update({
-      where: { id: params.id },
+      where: { id },
       data: validatedData,
       include: {
         payer: {
@@ -163,7 +165,7 @@ export async function PUT(
  */
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }  // ← PROMENA
 ) {
   try {
     const authCheck = await requireAuth(req);
@@ -173,10 +175,11 @@ export async function DELETE(
     }
 
     const user = authCheck.user;
+    const { id } = await context.params;  // ← PROMENA
 
     // Pronađi trošak
     const expense = await prisma.expense.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         group: {
           select: {
@@ -203,7 +206,7 @@ export async function DELETE(
 
     // Obriši trošak (CASCADE će obrisati splits)
     await prisma.expense.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({
