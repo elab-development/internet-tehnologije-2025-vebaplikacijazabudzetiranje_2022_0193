@@ -7,6 +7,14 @@ import {
   expenseAddedEmailTemplate,
   ExpenseAddedEmailData,
 } from './templates/expense-added';
+import {
+  groupInviteEmailTemplate,
+  GroupInviteEmailData,
+} from './templates/group-invite';
+import {
+  settlementConfirmedEmailTemplate,
+  SettlementEmailData,
+} from './templates/settlement-confirmed';
 
 /**
  * Email sending utility functions
@@ -103,4 +111,38 @@ export async function sendBulkEmails(
   );
 
   await Promise.allSettled(promises);
+}
+
+/**
+ * Send group invite email
+ */
+export async function sendGroupInviteEmail(
+  email: string,
+  data: GroupInviteEmailData
+): Promise<boolean> {
+  const html = groupInviteEmailTemplate(data);
+
+  return sendEmail({
+    to: email,
+    subject: `🎉 ${data.inviterName} invited you to join "${data.groupName}" on SplitBill`,
+    html,
+    text: `${data.inviterName} invited you to join the group "${data.groupName}". Click here: ${data.inviteUrl}`,
+  });
+}
+
+/**
+ * Send settlement confirmed email
+ */
+export async function sendSettlementEmail(
+  email: string,
+  data: SettlementEmailData
+): Promise<boolean> {
+  const html = settlementConfirmedEmailTemplate(data);
+
+  return sendEmail({
+    to: email,
+    subject: `✅ Payment received from ${data.payerName} (${data.amount})`,
+    html,
+    text: `${data.payerName} sent you ${data.amount} to settle debts in "${data.groupName}".`,
+  });
 }

@@ -5,6 +5,7 @@ import { handleApiError, createErrorResponse } from '@/lib/utils/api-error';
 import { createExpenseSchema } from '@/lib/validations/expense';
 import { validateGroupAccess } from '@/lib/security/idor';
 import { sanitizeObject } from '@/lib/security/sanitize';
+import { sendBulkEmails } from '@/lib/email/send';
 
 /**
  * @swagger
@@ -243,18 +244,50 @@ export async function POST(req: NextRequest) {
             email: true,
           },
         },
+        group: {
+          select: {
+            name: true,
+          },
+        },
         splits: {
           include: {
             user: {
               select: {
                 id: true,
                 name: true,
+                email: true,
               },
             },
           },
         },
       },
     });
+
+    // Wire email notifications (non-blocking)
+    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+    const emailPayloads = expense.splits
+      .filter((split) => split.userId !== user.id) // ne slati platiocu
+      .map((split) => ({
+        to: split.user.email,
+        data: {
+          recipientName: split.user.name,
+          payerName: expense.payer.name,
+          groupName: expense.group.name,
+          expenseDescription: expense.description,
+          totalAmount: `$${expense.amount}`,
+          yourShare: `$${split.amount}`,
+          category: expense.category,
+          date: expense.date.toISOString().split('T')[0],
+          groupUrl: `${baseUrl}/groups/${validatedData.groupId}`,
+        },
+      }));
+
+    // Send emails without awaiting to not block response
+    if (emailPayloads.length > 0) {
+      sendBulkEmails(emailPayloads).catch((err) => {
+        console.error('Failed to send expense notification emails:', err);
+      });
+    }
 
     return NextResponse.json(
       {

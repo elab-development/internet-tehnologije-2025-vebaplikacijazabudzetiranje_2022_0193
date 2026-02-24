@@ -59,6 +59,9 @@ export async function GET(req: NextRequest) {
     const user = authCheck.user;
     const searchParams = req.nextUrl.searchParams;
     const groupId = searchParams.get('groupId');
+    const from = searchParams.get('from');
+    const to = searchParams.get('to');
+    const category = searchParams.get('category');
 
     // Build where clause - only get expenses from user's groups
     const where: any = {
@@ -88,6 +91,25 @@ export async function GET(req: NextRequest) {
       }
 
       where.groupId = groupId;
+    }
+
+    // Add date range filter
+    if (from || to) {
+      where.date = {};
+      if (from) {
+        where.date.gte = new Date(from);
+      }
+      if (to) {
+        // Add one day to include the entire "to" day
+        const toDate = new Date(to);
+        toDate.setDate(toDate.getDate() + 1);
+        where.date.lt = toDate;
+      }
+    }
+
+    // Add category filter
+    if (category && category !== 'ALL') {
+      where.category = category;
     }
 
     // Get expenses
