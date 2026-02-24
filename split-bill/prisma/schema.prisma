@@ -22,6 +22,7 @@ model User {
   avatarUrl     String?  @map("avatar_url")
   role          UserRole @default(USER)
   bio           String?  @db.VarChar(500)
+  preferredCurrency Currency @default(USD) @map("preferred_currency")
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
 
@@ -152,4 +153,15 @@ enum ExpenseCategory {
   ENTERTAINMENT
   BILLS
   OTHER
+}
+
+enum Currency {
+  USD  // US Dollar
+  EUR  // Euro
+  GBP  // British Pound
+  RSD  // Serbian Dinar
+  JPY  // Japanese Yen
+  CAD  // Canadian Dollar
+  AUD  // Australian Dollar
+  CHF  // Swiss Franc
 }
