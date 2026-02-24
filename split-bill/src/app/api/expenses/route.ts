@@ -3,6 +3,8 @@ import { requireAuth } from '@/lib/auth/api-middleware';
 import { prisma } from '@/lib/db';
 import { handleApiError, createErrorResponse } from '@/lib/utils/api-error';
 import { createExpenseSchema } from '@/lib/validations/expense';
+import { validateGroupAccess } from '@/lib/security/idor';
+import { sanitizeObject } from '@/lib/security/sanitize';
 
 /**
  * GET /api/expenses?groupId=xxx
@@ -89,20 +91,16 @@ export async function POST(req: NextRequest) {
 
     const user = authCheck.user;
 
-    // Validacija input-a
+    // Parse i sanitize input
     const body = await req.json();
-    const validatedData = createExpenseSchema.parse(body);
+    const sanitizedBody = sanitizeObject(body);
 
-    // Proveri da li je korisnik član grupe
-    const membership = await prisma.groupMember.findFirst({
-      where: {
-        groupId: validatedData.groupId,
-        userId: user.id,
-        isPending: false,
-      },
-    });
+    // Validacija input-a
+    const validatedData = createExpenseSchema.parse(sanitizedBody);
 
-    if (!membership) {
+    // IDOR Protection: Proveri pristup grupi
+    const hasAccess = await validateGroupAccess(user.id, validatedData.groupId);
+    if (!hasAccess) {
       return createErrorResponse('Forbidden - Not a group member', 403);
     }
 

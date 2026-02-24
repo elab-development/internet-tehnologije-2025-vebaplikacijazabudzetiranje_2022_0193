@@ -3,6 +3,7 @@ import { requireAuth, requireEditor } from '@/lib/auth/api-middleware';
 import { prisma } from '@/lib/db';
 import { handleApiError } from '@/lib/utils/api-error';
 import { createGroupSchema } from '@/lib/validations/group';
+import { sanitizeObject } from '@/lib/security/sanitize';
 
 /**
  * GET /api/groups
@@ -88,9 +89,12 @@ export async function POST(req: NextRequest) {
 
     const user = authCheck.user;
 
-    // Validacija input-a
+    // Parse i sanitize input
     const body = await req.json();
-    const validatedData = createGroupSchema.parse(body);
+    const sanitizedBody = sanitizeObject(body);
+
+    // Validacija input-a
+    const validatedData = createGroupSchema.parse(sanitizedBody);
 
     // Kreiraj grupu
     const group = await prisma.group.create({
