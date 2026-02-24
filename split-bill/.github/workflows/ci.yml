@@ -127,13 +127,22 @@ jobs:
         env:
           DATABASE_URL: postgresql://test:test@localhost:5432/test
 
-      - name: Run tests
+      - name: Run tests with coverage
         working-directory: ./split-bill
-        run: npm test -- --passWithNoTests
+        run: npm run test:ci
         env:
           DATABASE_URL: postgresql://test:test@localhost:5432/test
           NEXTAUTH_SECRET: test-secret-key
           NEXTAUTH_URL: http://localhost:3000
+
+      - name: Upload coverage to Codecov (optional)
+        uses: codecov/codecov-action@v4
+        if: always()
+        with:
+          files: ./split-bill/coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
 
   # ============================================
   # Job 4: Build Docker Image
