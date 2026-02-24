@@ -51,7 +51,16 @@ const nextConfig: NextConfig = {
   // Image optimization
   // ============================================
   images: {
-    domains: ['localhost'],
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+      },
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
     formats: ['image/avif', 'image/webp'],
   },
 
