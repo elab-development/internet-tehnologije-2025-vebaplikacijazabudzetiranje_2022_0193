@@ -5,6 +5,7 @@ import { registerSchema } from '@/lib/validations/auth';
 import { handleApiError, createErrorResponse } from '@/lib/utils/api-error';
 import { UserRole } from '@prisma/client';
 import { sanitizeObject } from '@/lib/security/sanitize';
+import { sendVerificationEmail } from '@/lib/email/send';
 
 /**
  * @swagger
@@ -131,8 +132,13 @@ export async function POST(req: NextRequest) {
         createdAt: true,
       },
     });
+    // 7. Posalji verifikacioni email
+    const verificationUrl = `${process.env.NEXTAUTH_URL}/api/auth/verify-email?userId=${user.id}`;
 
-    // 7. TODO: Pošalji verifikacioni email (implementiraćemo később)
+    await sendVerificationEmail(user.email, {
+      name: user.name,
+      verificationUrl,
+    });
     // await sendVerificationEmail(user.email, user.id);
 
     // 8. Vrati success response
