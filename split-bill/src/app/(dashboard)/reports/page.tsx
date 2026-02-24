@@ -48,27 +48,58 @@ export default function ReportsPage() {
   const [data, setData] = useState<ReportData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [filters, setFilters] = useState({
+    from: '',
+    to: '',
+    category: 'ALL',
+  });
+  const [groups, setGroups] = useState<Array<{ id: string; name: string }>>([]);
 
+  // Fetch groups for filter dropdown
   useEffect(() => {
-    const fetchReports = async () => {
+    const fetchGroups = async () => {
       try {
-        setIsLoading(true);
-        setError(null);
-        const response = await fetch('/api/reports');
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch reports');
+        const response = await fetch('/api/groups');
+        if (response.ok) {
+          const data = await response.json();
+          setGroups(data.groups);
         }
-
-        const reportData = await response.json();
-        setData(reportData);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Unknown error');
-      } finally {
-        setIsLoading(false);
+        console.error('Failed to fetch groups:', err);
       }
     };
+    fetchGroups();
+  }, []);
 
+  const fetchReports = async (filterParams?: any) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const params = filterParams || filters;
+      const queryParams = new URLSearchParams();
+
+      if (params.from) queryParams.append('from', params.from);
+      if (params.to) queryParams.append('to', params.to);
+      if (params.category && params.category !== 'ALL') queryParams.append('category', params.category);
+
+      const url = `/api/reports?${queryParams.toString()}`;
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch reports');
+      }
+
+      const reportData = await response.json();
+      setData(reportData);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchReports();
   }, []);
 
@@ -153,10 +184,90 @@ export default function ReportsPage() {
     },
   };
 
+  const handleExportCSV = () => {
+    if (!data) return;
+
+    const rows = [
+      ['Description', 'Category', 'Amount', 'Payer', 'Group', 'Date'],
+      ...data.topExpenses.map((exp) => [
+        exp.description,
+        exp.category,
+        exp.amount.toFixed(2),
+        exp.payer,
+        exp.group,
+        new Date(exp.date).toISOString().split('T')[0],
+      ]),
+    ];
+
+    const csv = rows.map((row) => row.map((cell) => `"${cell}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `expenses-report-${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Reports & Analytics</h1>
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Reports & Analytics</h1>
+          <button
+            onClick={handleExportCSV}
+            className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
+          >
+            Export CSV
+          </button>
+        </div>
+
+        {/* Filters Section */}
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Filters</h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">From Date</label>
+              <input
+                type="date"
+                value={filters.from}
+                onChange={(e) => setFilters({ ...filters, from: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">To Date</label>
+              <input
+                type="date"
+                value={filters.to}
+                onChange={(e) => setFilters({ ...filters, to: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+              <select
+                value={filters.category}
+                onChange={(e) => setFilters({ ...filters, category: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              >
+                <option value="ALL">All Categories</option>
+                <option value="FOOD">Food</option>
+                <option value="TRANSPORT">Transport</option>
+                <option value="ACCOMMODATION">Accommodation</option>
+                <option value="ENTERTAINMENT">Entertainment</option>
+                <option value="BILLS">Bills</option>
+                <option value="OTHER">Other</option>
+              </select>
+            </div>
+            <div className="flex items-end">
+              <button
+                onClick={() => fetchReports()}
+                className="w-full px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium"
+              >
+                Apply Filters
+              </button>
+            </div>
+          </div>
+        </div>
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
