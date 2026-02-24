@@ -88,6 +88,7 @@ model Expense {
   amount      Decimal         @db.Decimal(10, 2)
   category    ExpenseCategory
   date        DateTime
+  splitMethod SplitMethod     @default(EQUAL) @map("split_method")
   createdAt   DateTime        @default(now()) @map("created_at")
   updatedAt   DateTime        @updatedAt @map("updated_at")
 
@@ -164,4 +165,10 @@ enum Currency {
   CAD  // Canadian Dollar
   AUD  // Australian Dollar
   CHF  // Swiss Franc
+}
+
+enum SplitMethod {
+  EQUAL       // Podjednako
+  PERCENTAGE  // Po procentima
+  EXACT       // Tačni iznosi
 }
