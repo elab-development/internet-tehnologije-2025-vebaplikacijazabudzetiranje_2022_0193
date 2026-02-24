@@ -7,6 +7,63 @@ import { UserRole } from '@prisma/client';
 import { sanitizeObject } from '@/lib/security/sanitize';
 
 /**
+ * @swagger
+ * /api/auth/register:
+ *   post:
+ *     tags:
+ *       - Authentication
+ *     summary: Register a new user
+ *     description: Creates a new user account with email and password
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/RegisterInput'
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User registered successfully. Please verify your email.
+ *                 userId:
+ *                   type: string
+ *                   format: cuid
+ *                   example: clh1234567890abcdef
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     email:
+ *                       type: string
+ *                       example: user@example.com
+ *                     name:
+ *                       type: string
+ *                       example: John Doe
+ *                     role:
+ *                       type: string
+ *                       example: USER
+ *       400:
+ *         $ref: '#/components/responses/ValidationError'
+ *       409:
+ *         description: Email already registered
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Email already registered
+ *       429:
+ *         $ref: '#/components/responses/RateLimitError'
+ */
+
+/**
  * POST /api/auth/register
  * Registracija novog korisnika
  * 

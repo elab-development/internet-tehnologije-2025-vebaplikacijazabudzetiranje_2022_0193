@@ -7,6 +7,85 @@ import { validateGroupAccess } from '@/lib/security/idor';
 import { sanitizeObject } from '@/lib/security/sanitize';
 
 /**
+ * @swagger
+ * /api/expenses:
+ *   get:
+ *     tags:
+ *       - Expenses
+ *     summary: Get expenses for a group
+ *     description: Returns a list of all expenses in a specific group
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: groupId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *         description: Group ID to filter expenses
+ *     responses:
+ *       200:
+ *         description: List of expenses
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 expenses:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Expense'
+ *                 total:
+ *                   type: integer
+ *                   example: 15
+ *       400:
+ *         description: Group ID is required
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         description: Not a group member
+ *
+ *   post:
+ *     tags:
+ *       - Expenses
+ *     summary: Create a new expense
+ *     description: Creates a new expense in a group with splits
+ *     security:
+ *       - cookieAuth: []
+ *       - csrfToken: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreateExpenseInput'
+ *     responses:
+ *       201:
+ *         description: Expense created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Expense created successfully
+ *                 expense:
+ *                   $ref: '#/components/schemas/Expense'
+ *       400:
+ *         description: Validation error or split amounts don't match total
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         description: Not a group member
+ */
+
+/**
  * GET /api/expenses?groupId=xxx
  * Lista troškova u grupi
  */
