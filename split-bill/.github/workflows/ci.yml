@@ -1,0 +1,183 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  # ============================================
+  # Job 1: Lint and Type Check
+  # ============================================
+  lint:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: split-bill/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./split-bill
+        run: npm ci
+
+      - name: Run ESLint
+        working-directory: ./split-bill
+        run: npm run lint
+
+      - name: Run TypeScript type check
+        working-directory: ./split-bill
+        run: npx tsc --noEmit
+
+  # ============================================
+  # Job 2: Build Application
+  # ============================================
+  build:
+    name: Build Next.js App
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: split-bill/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./split-bill
+        run: npm ci
+
+      - name: Generate Prisma Client
+        working-directory: ./split-bill
+        run: npx prisma generate
+
+      - name: Build application
+        working-directory: ./split-bill
+        run: npm run build
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
+          NEXTAUTH_SECRET: test-secret-key-for-ci-pipeline
+          NEXTAUTH_URL: http://localhost:3000
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: split-bill/.next
+          retention-days: 1
+
+  # ============================================
+  # Job 3: Run Tests (Placeholder)
+  # ============================================
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    needs: lint
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: split-bill/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./split-bill
+        run: npm ci
+
+      - name: Generate Prisma Client
+        working-directory: ./split-bill
+        run: npx prisma generate
+
+      - name: Run database migrations
+        working-directory: ./split-bill
+        run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
+
+      - name: Run tests
+        working-directory: ./split-bill
+        run: npm test -- --passWithNoTests
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
+          NEXTAUTH_SECRET: test-secret-key
+          NEXTAUTH_URL: http://localhost:3000
+
+  # ============================================
+  # Job 4: Build Docker Image
+  # ============================================
+  docker:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    needs: [build, test]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        working-directory: ./split-bill
+        run: |
+          docker build -t splitbill:${{ github.sha }} .
+          docker tag splitbill:${{ github.sha }} splitbill:latest
+
+      - name: Test Docker image
+        run: |
+          docker run -d --name test-container splitbill:${{ github.sha }}
+          sleep 10
+          docker logs test-container
+          docker stop test-container
+          docker rm test-container
+
+  # ============================================
+  # Job 5: Summary
+  # ============================================
+  summary:
+    name: CI Summary
+    runs-on: ubuntu-latest
+    needs: [lint, build, test, docker]
+    if: always()
+
+    steps:
+      - name: Check results
+        run: |
+          echo "Lint: ${{ needs.lint.result }}"
+          echo "Build: ${{ needs.build.result }}"
+          echo "Tests: ${{ needs.test.result }}"
+          echo "Docker: ${{ needs.docker.result }}"
