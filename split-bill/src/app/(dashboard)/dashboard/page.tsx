@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useCurrency } from '@/hooks/useCurrency';
 
 interface DashboardStats {
   totalBalance: number;
@@ -12,10 +13,23 @@ interface DashboardStats {
   membersCount: number;
 }
 
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  USD: '$',
+  EUR: '€',
+  GBP: '£',
+  RSD: 'RSD ',
+  JPY: '¥',
+  CAD: 'CA$',
+  AUD: 'A$',
+  CHF: 'CHF ',
+};
+
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [conversionRate, setConversionRate] = useState<number>(1);
+  const { preferredCurrency, isLoading: currencyLoading } = useCurrency();
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -40,7 +54,31 @@ export default function DashboardPage() {
     fetchStats();
   }, []);
 
-  if (isLoading) {
+  useEffect(() => {
+    if (!preferredCurrency || preferredCurrency === 'USD') {
+      setConversionRate(1);
+      return;
+    }
+
+    const fetchRate = async () => {
+      try {
+        const response = await fetch('/api/currency/rates');
+        if (!response.ok) return;
+        const data = await response.json();
+        const rate = data.rates?.[preferredCurrency];
+        if (rate) setConversionRate(rate);
+      } catch {
+        // fallback: ostavi rate 1
+      }
+    };
+
+    fetchRate();
+  }, [preferredCurrency]);
+
+  const convert = (amount: number) => (amount * conversionRate).toFixed(2);
+  const symbol = CURRENCY_SYMBOLS[preferredCurrency] ?? preferredCurrency + ' ';
+
+  if (isLoading || currencyLoading) {
     return (
       <div className="min-h-screen bg-gray-50 p-8">
         <div className="flex justify-center items-center h-96">
@@ -79,7 +117,7 @@ export default function DashboardPage() {
           }`}
         >
           <p className="text-lg opacity-90">Your Balance</p>
-          <p className="text-5xl font-bold mt-2">${absBalance.toFixed(2)}</p>
+          <p className="text-5xl font-bold mt-2">{symbol}{convert(absBalance)}</p>
           <p className="text-lg opacity-90 mt-4">
             {isOwing ? 'You owe' : 'You are owed'} money
           </p>
@@ -91,7 +129,7 @@ export default function DashboardPage() {
               <div>
                 <p className="text-sm font-medium text-gray-600">You Paid</p>
                 <p className="text-3xl font-bold text-gray-900 mt-2">
-                  ${stats.totalOwed.toFixed(2)}
+                  {symbol}{convert(stats.totalOwed)}
                 </p>
               </div>
               <div className="text-4xl">💰</div>
@@ -103,7 +141,7 @@ export default function DashboardPage() {
               <div>
                 <p className="text-sm font-medium text-gray-600">You Owe</p>
                 <p className="text-3xl font-bold text-gray-900 mt-2">
-                  ${stats.totalOwing.toFixed(2)}
+                  {symbol}{convert(stats.totalOwing)}
                 </p>
               </div>
               <div className="text-4xl">📊</div>
@@ -145,7 +183,7 @@ export default function DashboardPage() {
               <div>
                 <p className="text-sm font-medium text-gray-600">Avg Expense</p>
                 <p className="text-3xl font-bold text-gray-900 mt-2">
-                  ${stats.expensesCount > 0 ? ((stats.totalOwed + stats.totalOwing) / stats.expensesCount).toFixed(2) : '0.00'}
+                  {symbol}{stats.expensesCount > 0 ? convert((stats.totalOwed + stats.totalOwing) / stats.expensesCount) : '0.00'}
                 </p>
               </div>
               <div className="text-4xl">📈</div>

@@ -24,7 +24,12 @@ export default withAuth(
     // ============================================
 
     // Strict rate limit for auth endpoints
-    if (path.startsWith('/api/auth/register') || path.startsWith('/api/auth/login')) {
+    // NextAuth login ide na /api/auth/callback/credentials i /api/auth/signin
+    if (
+      path.startsWith('/api/auth/register') ||
+      path.startsWith('/api/auth/callback/credentials') ||
+      path.startsWith('/api/auth/signin')
+    ) {
       const rateLimitResponse = await strictRateLimit(req);
       if (rateLimitResponse) {
         return rateLimitResponse;
@@ -53,8 +58,8 @@ export default withAuth(
 
     // Editor+ routes
     if (path.startsWith('/groups/create')) {
-      const allowedRoles = [UserRole.ADMIN, UserRole.EDITOR];
-      if (!token?.role || !allowedRoles.includes(token.role)) {
+      const allowedRoles: UserRole[] = [UserRole.ADMIN, UserRole.EDITOR];
+      if (!token?.role || !allowedRoles.includes(token.role as UserRole)) {
         console.log('❌ Access denied: Editor route, user role:', token?.role);
         return NextResponse.redirect(new URL('/dashboard', req.url));
       }
