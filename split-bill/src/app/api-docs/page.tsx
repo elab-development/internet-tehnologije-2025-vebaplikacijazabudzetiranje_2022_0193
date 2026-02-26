@@ -14,14 +14,17 @@ export default function ApiDocsPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetch('/api/swagger')
-      .then((res) => res.json())
+    fetch('/api/swagger', { cache: 'no-store' })
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
       .then((data) => {
         setSpec(data);
         setIsLoading(false);
       })
       .catch((err) => {
-        setError('Failed to load API documentation');
+        setError(`Failed to load API documentation: ${err.message}`);
         setIsLoading(false);
         console.error(err);
       });

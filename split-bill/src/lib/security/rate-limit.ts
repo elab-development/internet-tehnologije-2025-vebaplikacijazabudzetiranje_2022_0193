@@ -64,8 +64,8 @@ function getClientId(req: NextRequest): string {
     return realIp;
   }
 
-  // Fallback na remote address
-  return req.ip || 'unknown';
+  // Fallback na remote address (req.ip removed in Next.js 15+)
+  return (req as unknown as { ip?: string }).ip || 'unknown';
 }
 
 /**

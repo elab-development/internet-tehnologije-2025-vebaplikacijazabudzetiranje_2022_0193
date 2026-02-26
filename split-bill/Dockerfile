@@ -11,8 +11,8 @@ WORKDIR /app
 # Copy package files
 COPY package.json package-lock.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install dependencies (including dev — needed for prisma CLI in builder stage)
+RUN npm install --legacy-peer-deps
 
 # ============================================
 # STAGE 2: Builder
@@ -30,8 +30,22 @@ COPY . .
 # Copy Prisma schema
 COPY prisma ./prisma/
 
-# Generate Prisma Client
-RUN npx prisma generate
+# Generate Prisma Client (use local binary to avoid npx downloading prisma@7)
+RUN ./node_modules/.bin/prisma generate
+
+# Compile seed.ts → seed.js so the runner can execute it without ts-node
+RUN node -e "\
+const ts  = require('./node_modules/typescript');\
+const fs  = require('fs');\
+const src = fs.readFileSync('prisma/seed.ts', 'utf8');\
+const out = ts.transpileModule(src, { compilerOptions: {\
+  module: ts.ModuleKind.CommonJS,\
+  target: ts.ScriptTarget.ES2020,\
+  esModuleInterop: true\
+} });\
+fs.writeFileSync('prisma/seed.js', out.outputText);\
+console.log('Compiled seed.ts → seed.js');\
+"
 
 # Set environment to production
 ENV NODE_ENV production
@@ -62,6 +76,29 @@ COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
+# Copy entire @prisma scope (client, engines, fetch-engine, debug, etc.) and prisma CLI
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
+
+# Recreate prisma symlink — COPY resolves symlinks, which moves __dirname to .bin/
+# and breaks relative WASM lookups; symlink keeps __dirname in prisma/build/ where WASM lives
+RUN node -e "\
+const pkg = require('./node_modules/prisma/package.json');\
+const bin = typeof pkg.bin === 'string' ? pkg.bin : pkg.bin.prisma;\
+const fs  = require('fs');\
+fs.mkdirSync('./node_modules/.bin', { recursive: true });\
+try { fs.unlinkSync('./node_modules/.bin/prisma'); } catch (e) {}\
+fs.symlinkSync('../prisma/' + bin, './node_modules/.bin/prisma');\
+console.log('Symlink: .bin/prisma → ../prisma/' + bin);\
+"
+
+# Copy runtime dependencies needed by seed.js
+COPY --from=builder /app/node_modules/bcryptjs ./node_modules/bcryptjs
+
+# Copy entrypoint script
+COPY entrypoint.sh ./entrypoint.sh
+RUN chmod +x ./entrypoint.sh
+
 # Set correct permissions
 RUN chown -R nextjs:nodejs /app
 
@@ -79,5 +116,5 @@ ENV PORT 3000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
   CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
-# Start application
-CMD ["node", "server.js"]
+# Start application (entrypoint runs migrations then starts server)
+CMD ["sh", "entrypoint.sh"]

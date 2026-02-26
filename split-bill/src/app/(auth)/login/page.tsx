@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, Suspense } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -14,7 +14,7 @@ import { Button, Input, Card } from '@/components/ui';
  * - useRouter: Navigacija nakon login-a
  * - useSearchParams: Čitanje error parametara iz URL-a
  */
-export default function LoginPage() {
+function LoginForm() {
   // State management
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -190,5 +190,13 @@ export default function LoginPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }
