@@ -40,7 +40,7 @@ export function canAccessRoute(userRole: UserRole, route: string): boolean {
   // Pronađi matching permission
   for (const [path, allowedRoles] of Object.entries(ROUTE_PERMISSIONS)) {
     if (route.startsWith(path)) {
-      return allowedRoles.includes(userRole);
+      return (allowedRoles as readonly UserRole[]).includes(userRole);
     }
   }
   

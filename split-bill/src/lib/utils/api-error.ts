@@ -32,7 +32,7 @@ export function createErrorResponse(
  * Handluje Zod validation errors
  */
 export function handleZodError(error: ZodError): NextResponse<ApiError> {
-  const formattedErrors = error.errors.map((err) => ({
+  const formattedErrors = error.issues.map((err) => ({
     field: err.path.join('.'),
     message: err.message,
   }));

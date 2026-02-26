@@ -18,13 +18,13 @@ export async function requireAuth(req: NextRequest) {
 
   if (!session?.user) {
     return {
-      authorized: false,
+      authorized: false as const,
       response: createErrorResponse('Unauthorized', 401),
     };
   }
 
   return {
-    authorized: true,
+    authorized: true as const,
     user: session.user,
   };
 }
@@ -41,7 +41,7 @@ export async function requireRole(req: NextRequest, role: UserRole) {
 
   if (authCheck.user.role !== role) {
     return {
-      authorized: false,
+      authorized: false as const,
       response: createErrorResponse(
         'Forbidden - Insufficient permissions',
         403
@@ -50,7 +50,7 @@ export async function requireRole(req: NextRequest, role: UserRole) {
   }
 
   return {
-    authorized: true,
+    authorized: true as const,
     user: authCheck.user,
   };
 }
@@ -67,7 +67,7 @@ export async function requireAnyRole(req: NextRequest, roles: UserRole[]) {
 
   if (!roles.includes(authCheck.user.role)) {
     return {
-      authorized: false,
+      authorized: false as const,
       response: createErrorResponse(
         'Forbidden - Insufficient permissions',
         403
@@ -76,7 +76,7 @@ export async function requireAnyRole(req: NextRequest, roles: UserRole[]) {
   }
 
   return {
-    authorized: true,
+    authorized: true as const,
     user: authCheck.user,
   };
 }

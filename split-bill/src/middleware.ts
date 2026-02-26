@@ -1,30 +1,54 @@
 import { withAuth } from 'next-auth/middleware';
 import { NextResponse } from 'next/server';
 import { UserRole } from '@prisma/client';
+import { apiRateLimit, strictRateLimit } from '@/lib/security/rate-limit';
+import { handleCorsPreflightRequest } from '@/lib/security/cors';
 
 /**
- * Next.js Middleware za zaštitu ruta
- * Koristi NextAuth.js withAuth wrapper
- * 
- * Provera autentifikacije i role-based access control
+ * Next.js Middleware sa security features
  */
 export default withAuth(
-  function middleware(req) {
+  async function middleware(req) {
     const token = req.nextauth.token;
     const path = req.nextUrl.pathname;
 
-    // Logovanje za debugging (samo u development-u)
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🔒 Middleware:', {
-        path,
-        authenticated: !!token,
-        role: token?.role,
-      });
+    // ============================================
+    // CORS - Handle preflight requests
+    // ============================================
+    if (req.method === 'OPTIONS') {
+      return handleCorsPreflightRequest(req);
     }
 
     // ============================================
-    // ADMIN-ONLY ROUTES
+    // RATE LIMITING
     // ============================================
+
+    // Strict rate limit for auth endpoints
+    // NextAuth login ide na /api/auth/callback/credentials i /api/auth/signin
+    if (
+      path.startsWith('/api/auth/register') ||
+      path.startsWith('/api/auth/callback/credentials') ||
+      path.startsWith('/api/auth/signin')
+    ) {
+      const rateLimitResponse = await strictRateLimit(req);
+      if (rateLimitResponse) {
+        return rateLimitResponse;
+      }
+    }
+
+    // Standard rate limit for other API endpoints
+    if (path.startsWith('/api/')) {
+      const rateLimitResponse = await apiRateLimit(req);
+      if (rateLimitResponse) {
+        return rateLimitResponse;
+      }
+    }
+
+    // ============================================
+    // ROLE-BASED ACCESS CONTROL
+    // ============================================
+
+    // Admin-only routes
     if (path.startsWith('/admin')) {
       if (token?.role !== UserRole.ADMIN) {
         console.log('❌ Access denied: Admin route, user role:', token?.role);
@@ -32,63 +56,56 @@ export default withAuth(
       }
     }
 
-    // ============================================
-    // EDITOR+ ROUTES (EDITOR ili ADMIN)
-    // ============================================
+    // Editor+ routes
     if (path.startsWith('/groups/create')) {
-      const allowedRoles = [UserRole.ADMIN, UserRole.EDITOR];
-      if (!token?.role || !allowedRoles.includes(token.role)) {
+      const allowedRoles: UserRole[] = [UserRole.ADMIN, UserRole.EDITOR];
+      if (!token?.role || !allowedRoles.includes(token.role as UserRole)) {
         console.log('❌ Access denied: Editor route, user role:', token?.role);
         return NextResponse.redirect(new URL('/dashboard', req.url));
       }
     }
 
     // ============================================
-    // AUTHENTICATED ROUTES (bilo koja rola)
+    // SECURITY HEADERS
     // ============================================
-    // Svi ostali protected routes su dostupni svim autentifikovanim korisnicima
-    // withAuth automatski proverava da li je token prisutan
+    const response = NextResponse.next();
 
-    // Nastavi sa request-om
-    return NextResponse.next();
+    // Add security headers
+    response.headers.set('X-Content-Type-Options', 'nosniff');
+    response.headers.set('X-Frame-Options', 'DENY');
+    response.headers.set('X-XSS-Protection', '1; mode=block');
+    response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+    response.headers.set(
+      'Permissions-Policy',
+      'camera=(), microphone=(), geolocation=()'
+    );
+
+    // CSP header
+    if (process.env.NODE_ENV === 'production') {
+      response.headers.set(
+        'Content-Security-Policy',
+        "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.exchangerate-api.com;"
+      );
+    }
+
+    return response;
   },
   {
     callbacks: {
-      /**
-       * Callback koji određuje da li je korisnik autorizovan
-       * Ako vrati false, korisnik se redirektuje na signIn stranicu
-       */
-      authorized: ({ token }) => {
-        // Korisnik mora imati token (biti prijavljen)
-        return !!token;
-      },
+      authorized: ({ token }) => !!token,
     },
     pages: {
-      signIn: '/login', // Redirect na login stranicu ako nije autentifikovan
+      signIn: '/login',
     },
   }
 );
 
-/**
- * Matcher config - definisanje koje rute middleware treba da štiti
- * 
- * Protected routes:
- * - /dashboard/* - Glavni dashboard i sve podstranice
- * - /groups/* - Sve rute vezane za grupe
- * - /profile/* - Korisnički profil
- * - /admin/* - Admin panel (samo ADMIN rola)
- * 
- * Public routes (nisu u matcher-u):
- * - / - Landing page
- * - /login - Login stranica
- * - /register - Registracija
- * - /api/auth/* - NextAuth endpoints
- */
 export const config = {
   matcher: [
     '/dashboard/:path*',
     '/groups/:path*',
     '/profile/:path*',
     '/admin/:path*',
+    '/api/:path*',
   ],
 };

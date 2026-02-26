@@ -21,7 +21,7 @@ export const createExpenseSchema = z.object({
     .max(999999.99, 'Amount too large'),
   
   category: z.nativeEnum(ExpenseCategory, {
-    errorMap: () => ({ message: 'Invalid expense category' }),
+    message: 'Invalid expense category',
   }),
   
   date: z
