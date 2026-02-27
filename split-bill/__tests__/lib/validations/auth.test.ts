@@ -25,7 +25,7 @@ describe('Auth Validation Schemas', () => {
       const result = registerSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.errors[0].message).toContain('email');
+        expect(result.error.issues[0].message).toContain('email');
       }
     });
 
@@ -39,7 +39,7 @@ describe('Auth Validation Schemas', () => {
       const result = registerSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.errors[0].message).toContain('uppercase');
+        expect(result.error.issues[0].message).toContain('uppercase');
       }
     });
 
@@ -75,7 +75,7 @@ describe('Auth Validation Schemas', () => {
       const result = registerSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.errors[0].message).toContain('8');
+        expect(result.error.issues[0].message).toContain('8');
       }
     });
 
