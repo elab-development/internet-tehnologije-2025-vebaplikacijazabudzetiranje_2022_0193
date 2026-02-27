@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 import { describe, it, expect } from '@jest/globals';
 import { generateCsrfToken } from '@/lib/security/csrf';
 

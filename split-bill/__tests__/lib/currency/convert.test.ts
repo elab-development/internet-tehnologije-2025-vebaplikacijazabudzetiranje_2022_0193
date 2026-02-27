@@ -1,4 +1,4 @@
-import { describe, it, expect, jest } from '@jest/globals';
+import { describe, it, expect } from '@jest/globals';
 import { convertAmount, formatCurrency } from '@/lib/currency/convert';
 import { SupportedCurrency } from '@/lib/currency/types';
 
