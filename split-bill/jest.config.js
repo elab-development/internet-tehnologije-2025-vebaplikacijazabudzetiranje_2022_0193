@@ -10,6 +10,7 @@ const customJestConfig = {
   testEnvironment: 'jest-environment-jsdom',
 
   moduleNameMapper: {
+    '^isomorphic-dompurify$': '<rootDir>/__mocks__/isomorphic-dompurify.js',
     '^@/(.*)$': '<rootDir>/src/$1',
   },
 

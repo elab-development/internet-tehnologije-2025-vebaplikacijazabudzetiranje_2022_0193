@@ -82,7 +82,7 @@ export function sanitizeEmail(email: string): string {
  * Validate and sanitize URL
  */
 export function sanitizeUrl(url: string): string {
-  const sanitized = sanitizeInput(url);
+  const sanitized = sanitizeHtml(url.trim());
 
   try {
     const parsedUrl = new URL(sanitized);

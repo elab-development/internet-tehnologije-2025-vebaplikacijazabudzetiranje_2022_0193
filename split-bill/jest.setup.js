@@ -1,5 +1,16 @@
 import '@testing-library/jest-dom';
 
+// Polyfill Web APIs for jsdom environment
+// (needed by undici/jsdom chain used by isomorphic-dompurify)
+const { TextDecoder, TextEncoder } = require('util');
+const { ReadableStream, WritableStream, TransformStream } = require('stream/web');
+const { MessagePort, MessageChannel } = require('worker_threads');
+Object.assign(global, {
+  TextDecoder, TextEncoder,
+  ReadableStream, WritableStream, TransformStream,
+  MessagePort, MessageChannel,
+});
+
 // Mock environment variables
 process.env.DATABASE_URL = 'postgresql://test:test@localhost:5432/test';
 process.env.NEXTAUTH_SECRET = 'test-secret-key-for-testing';
