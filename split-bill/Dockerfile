@@ -11,6 +11,9 @@ WORKDIR /app
 # Copy package files
 COPY package.json package-lock.json ./
 
+# Copy Prisma schema before install — postinstall runs "prisma generate" which requires schema.prisma
+COPY prisma ./prisma/
+
 # Install dependencies (including dev — needed for prisma CLI in builder stage)
 RUN npm install --legacy-peer-deps
 
