@@ -31,7 +31,7 @@ jobs:
 
       - name: Run ESLint
         working-directory: ./split-bill
-        run: npm run lint
+        run: npx eslint src/ --max-warnings=0
 
       - name: Run TypeScript type check
         working-directory: ./split-bill
