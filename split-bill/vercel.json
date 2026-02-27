@@ -3,17 +3,5 @@
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "framework": "nextjs",
-  "regions": ["iad1"],
-  "env": {
-    "DATABASE_URL": "@database-url",
-    "NEXTAUTH_SECRET": "@nextauth-secret",
-    "NEXTAUTH_URL": "@nextauth-url",
-    "SENDGRID_API_KEY": "@sendgrid-api-key",
-    "EMAIL_FROM": "@email-from"
-  },
-  "build": {
-    "env": {
-      "DATABASE_URL": "@database-url"
-    }
-  }
+  "regions": ["iad1"]
 }

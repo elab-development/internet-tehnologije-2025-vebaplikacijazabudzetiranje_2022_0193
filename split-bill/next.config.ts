@@ -2,11 +2,6 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // ============================================
-  // Docker support - standalone output
-  // ============================================
-  output: 'standalone',
-
-  // ============================================
   // Security headers
   // ============================================
   async headers() {
