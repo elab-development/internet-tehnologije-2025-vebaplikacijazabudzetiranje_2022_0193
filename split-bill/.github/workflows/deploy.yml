@@ -40,7 +40,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./split-bill
-        run: npm ci
+        run: npm install --legacy-peer-deps
 
       - name: Generate Prisma Client
         working-directory: ./split-bill
