@@ -1,115 +1,116 @@
-import { withAuth } from 'next-auth/middleware';
-import { NextResponse } from 'next/server';
-import { UserRole } from '@prisma/client';
+import { getToken } from 'next-auth/jwt';
+import { NextRequest, NextResponse } from 'next/server';
 import { apiRateLimit, strictRateLimit } from '@/lib/security/rate-limit';
 import { handleCorsPreflightRequest } from '@/lib/security/cors';
 
 /**
- * Next.js Middleware sa security features
+ * Next.js Middleware — Edge-Runtime compatible.
+ *
+ * Replaces the previous withAuth() wrapper which caused 405 errors on Vercel
+ * because withAuth is not fully compatible with Next.js 16 Edge Runtime.
+ * getToken() from next-auth/jwt works correctly in Edge Runtime.
  */
-export default withAuth(
-  async function middleware(req) {
-    const token = req.nextauth.token;
-    const path = req.nextUrl.pathname;
 
-    // ============================================
-    // CORS - Handle preflight requests
-    // ============================================
-    if (req.method === 'OPTIONS') {
-      return handleCorsPreflightRequest(req);
-    }
+// Routes that do NOT require authentication
+const PUBLIC_API_PREFIXES = ['/api/auth/', '/api/health'];
 
-    // ============================================
-    // RATE LIMITING
-    // ============================================
+// Routes that require ADMIN role
+const ADMIN_PREFIXES = ['/admin'];
 
-    // Strict rate limit for auth endpoints
-    // NextAuth login ide na /api/auth/callback/credentials i /api/auth/signin
-    if (
-      path.startsWith('/api/auth/register') ||
-      path.startsWith('/api/auth/callback/credentials') ||
-      path.startsWith('/api/auth/signin')
-    ) {
-      const rateLimitResponse = await strictRateLimit(req);
-      if (rateLimitResponse) {
-        return rateLimitResponse;
+// Routes that require ADMIN or EDITOR role
+const EDITOR_PREFIXES = ['/groups/create'];
+
+export async function middleware(req: NextRequest) {
+  const path = req.nextUrl.pathname;
+
+  // ============================================
+  // CORS - Handle preflight requests
+  // ============================================
+  if (req.method === 'OPTIONS') {
+    return handleCorsPreflightRequest(req);
+  }
+
+  // ============================================
+  // RATE LIMITING
+  // ============================================
+  if (
+    path.startsWith('/api/auth/register') ||
+    path.startsWith('/api/auth/callback/credentials') ||
+    path.startsWith('/api/auth/signin')
+  ) {
+    const rateLimitResponse = await strictRateLimit(req);
+    if (rateLimitResponse) return rateLimitResponse;
+  }
+
+  if (path.startsWith('/api/')) {
+    const rateLimitResponse = await apiRateLimit(req);
+    if (rateLimitResponse) return rateLimitResponse;
+  }
+
+  // ============================================
+  // AUTHENTICATION CHECK
+  // ============================================
+  const isPublicApi = PUBLIC_API_PREFIXES.some((prefix) =>
+    path.startsWith(prefix)
+  );
+
+  if (!isPublicApi) {
+    const token = await getToken({
+      req,
+      secret: process.env.NEXTAUTH_SECRET,
+    });
+
+    if (!token) {
+      // API routes return 401; page routes redirect to login
+      if (path.startsWith('/api/')) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
       }
-    }
-
-    // Standard rate limit for other API endpoints
-    if (path.startsWith('/api/')) {
-      const rateLimitResponse = await apiRateLimit(req);
-      if (rateLimitResponse) {
-        return rateLimitResponse;
-      }
+      const loginUrl = new URL('/login', req.url);
+      loginUrl.searchParams.set('callbackUrl', path);
+      return NextResponse.redirect(loginUrl);
     }
 
     // ============================================
     // ROLE-BASED ACCESS CONTROL
     // ============================================
+    const role = token.role as string;
 
-    // Admin-only routes
-    if (path.startsWith('/admin')) {
-      if (token?.role !== UserRole.ADMIN) {
-        console.log('❌ Access denied: Admin route, user role:', token?.role);
+    if (ADMIN_PREFIXES.some((p) => path.startsWith(p))) {
+      if (role !== 'ADMIN') {
         return NextResponse.redirect(new URL('/dashboard', req.url));
       }
     }
 
-    // Editor+ routes
-    if (path.startsWith('/groups/create')) {
-      const allowedRoles: UserRole[] = [UserRole.ADMIN, UserRole.EDITOR];
-      if (!token?.role || !allowedRoles.includes(token.role as UserRole)) {
-        console.log('❌ Access denied: Editor route, user role:', token?.role);
+    if (EDITOR_PREFIXES.some((p) => path.startsWith(p))) {
+      if (role !== 'ADMIN' && role !== 'EDITOR') {
         return NextResponse.redirect(new URL('/dashboard', req.url));
       }
     }
-
-    // ============================================
-    // SECURITY HEADERS
-    // ============================================
-    const response = NextResponse.next();
-
-    // Add security headers
-    response.headers.set('X-Content-Type-Options', 'nosniff');
-    response.headers.set('X-Frame-Options', 'DENY');
-    response.headers.set('X-XSS-Protection', '1; mode=block');
-    response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-    response.headers.set(
-      'Permissions-Policy',
-      'camera=(), microphone=(), geolocation=()'
-    );
-
-    // CSP header
-    if (process.env.NODE_ENV === 'production') {
-      response.headers.set(
-        'Content-Security-Policy',
-        "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.exchangerate-api.com;"
-      );
-    }
-
-    return response;
-  },
-  {
-    callbacks: {
-      // Public API routes must return true so withAuth doesn't redirect
-      // unauthenticated users to /login (which causes 405 on POST requests).
-      // Rate limiting and security headers still apply via the middleware body.
-      authorized: ({ token, req }) => {
-        const path = req.nextUrl.pathname;
-        // All /api/auth/* are public (register, verify-email, NextAuth handlers)
-        if (path.startsWith('/api/auth/')) return true;
-        // Health check is public
-        if (path === '/api/health') return true;
-        // Everything else requires a valid session token
-        return !!token;
-      },
-    },
-    pages: {
-      signIn: '/login',
-    },
   }
-);
+
+  // ============================================
+  // SECURITY HEADERS
+  // ============================================
+  const response = NextResponse.next();
+
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('X-Frame-Options', 'DENY');
+  response.headers.set('X-XSS-Protection', '1; mode=block');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  response.headers.set(
+    'Permissions-Policy',
+    'camera=(), microphone=(), geolocation=()'
+  );
+
+  if (process.env.NODE_ENV === 'production') {
+    response.headers.set(
+      'Content-Security-Policy',
+      "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.exchangerate-api.com;"
+    );
+  }
+
+  return response;
+}
 
 export const config = {
   matcher: [
