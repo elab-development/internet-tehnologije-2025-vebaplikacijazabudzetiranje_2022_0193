@@ -92,7 +92,18 @@ export default withAuth(
   },
   {
     callbacks: {
-      authorized: ({ token }) => !!token,
+      // Public API routes must return true so withAuth doesn't redirect
+      // unauthenticated users to /login (which causes 405 on POST requests).
+      // Rate limiting and security headers still apply via the middleware body.
+      authorized: ({ token, req }) => {
+        const path = req.nextUrl.pathname;
+        // All /api/auth/* are public (register, verify-email, NextAuth handlers)
+        if (path.startsWith('/api/auth/')) return true;
+        // Health check is public
+        if (path === '/api/health') return true;
+        // Everything else requires a valid session token
+        return !!token;
+      },
     },
     pages: {
       signIn: '/login',
