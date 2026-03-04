@@ -99,8 +99,9 @@ console.log('Symlink: .bin/prisma → ../prisma/' + bin);\
 COPY --from=builder /app/node_modules/bcryptjs ./node_modules/bcryptjs
 
 # Copy entrypoint script
+# Strip Windows CRLF line endings that survive git checkout on Windows hosts
 COPY entrypoint.sh ./entrypoint.sh
-RUN chmod +x ./entrypoint.sh
+RUN sed -i 's/\r//' ./entrypoint.sh && chmod +x ./entrypoint.sh
 
 # Set correct permissions
 RUN chown -R nextjs:nodejs /app

@@ -1,43 +1,45 @@
-import sgMail from '@sendgrid/mail';
+import { Resend } from 'resend';
 
 /**
- * SendGrid Email Configuration
+ * Resend Email Configuration
+ *
+ * Free plan constraint: emails can only be delivered to the account-owner's
+ * verified address. Set RESEND_TO_OVERRIDE to that address so every outgoing
+ * email is redirected there during development / on the free tier.
  */
 
-// Initialize SendGrid with API key
-const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY || '';
+const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
 
-if (!SENDGRID_API_KEY) {
-  console.warn('⚠️  SENDGRID_API_KEY is not set. Email functionality will not work.');
-} else {
-  sgMail.setApiKey(SENDGRID_API_KEY);
+if (!RESEND_API_KEY) {
+  console.warn('⚠️  RESEND_API_KEY is not set. Email functionality will not work.');
 }
+
+// Conditionally instantiate to avoid a throw during Next.js build
+// when environment variables are not yet injected.
+export const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
 
 /**
  * Email configuration
  */
 export const emailConfig = {
   from: {
-    email: process.env.EMAIL_FROM || 'noreply@splitbill.com',
+    // Use Resend's shared sending domain until a custom domain is verified.
+    // After domain verification, switch to e.g. "SplitBill <noreply@yourdomain.com>"
+    email: process.env.EMAIL_FROM || 'onboarding@resend.dev',
     name: 'SplitBill',
   },
-  replyTo: process.env.EMAIL_REPLY_TO || 'support@splitbill.com',
+  replyTo: process.env.EMAIL_REPLY_TO || 'andjeladanilovic19@gmail.com',
 
-  // Email templates
-  templates: {
-    verification: 'verification',
-    groupInvite: 'group-invite',
-    expenseAdded: 'expense-added',
-    settlementConfirmed: 'settlement-confirmed',
-    passwordReset: 'password-reset',
-  },
+  /**
+   * Free-plan override: when set, ALL outgoing emails are delivered to this
+   * address instead of the real recipient. Required on Resend's free tier.
+   */
+  toOverride: process.env.RESEND_TO_OVERRIDE || '',
 
   // Feature flags
-  enabled: !!SENDGRID_API_KEY && process.env.NODE_ENV !== 'test',
+  enabled: !!RESEND_API_KEY && process.env.NODE_ENV !== 'test',
 
   // Rate limiting
   maxRetries: 3,
   retryDelay: 1000, // ms
 };
-
-export { sgMail };

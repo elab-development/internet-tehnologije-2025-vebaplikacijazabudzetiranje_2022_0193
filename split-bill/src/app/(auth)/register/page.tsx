@@ -91,16 +91,8 @@ export default function RegisterPage() {
         throw new Error(data.error || 'Registration failed');
       }
 
-      // Success
+      // Success — wait for user to verify email, do NOT auto-verify
       setSuccess(true);
-
-      // Auto-verify for MVP (u produkciji bi slali email)
-      await fetch(`/api/auth/verify-email?userId=${data.userId}`);
-
-      // Redirect to login after 2 seconds
-      setTimeout(() => {
-        router.push('/login');
-      }, 2000);
     } catch (err: any) {
       setError(err.message || 'An unexpected error occurred');
       setIsLoading(false);
@@ -129,14 +121,21 @@ export default function RegisterPage() {
               </svg>
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Registration Successful!
+              Check your email!
             </h2>
             <p className="text-gray-600 mb-4">
-              Your account has been created and verified.
+              We sent a verification link to <strong>{email}</strong>.
+              Click the link to activate your account.
             </p>
-            <p className="text-sm text-gray-500">
-              Redirecting to login page...
+            <p className="text-sm text-gray-500 mb-6">
+              Didn&apos;t receive it? Check your spam folder.
             </p>
+            <Link
+              href="/login"
+              className="inline-block text-sm font-medium text-primary-600 hover:text-primary-700 underline"
+            >
+              Back to Sign In
+            </Link>
           </div>
         </Card>
       </div>

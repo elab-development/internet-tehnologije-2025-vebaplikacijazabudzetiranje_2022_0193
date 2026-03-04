@@ -1,4 +1,4 @@
-import { emailConfig, sgMail } from './config';
+import { emailConfig, resend } from './config';
 import {
   verificationEmailTemplate,
   VerificationEmailData,
@@ -39,29 +39,31 @@ async function sendEmail(options: SendEmailOptions): Promise<boolean> {
     return true;
   }
 
+  // Free-plan override: redirect all emails to the verified account address
+  const recipient = emailConfig.toOverride || options.to;
+  if (emailConfig.toOverride && emailConfig.toOverride !== options.to) {
+    console.log(`📧 [Free plan] Redirecting email from "${options.to}" to "${recipient}"`);
+  }
+
   try {
-    const msg = {
-      to: options.to,
-      from: {
-        email: emailConfig.from.email,
-        name: emailConfig.from.name,
-      },
+    const { error } = await resend!.emails.send({
+      from: `${emailConfig.from.name} <${emailConfig.from.email}>`,
+      to: recipient,
       replyTo: emailConfig.replyTo,
       subject: options.subject,
       html: options.html,
       text: options.text || options.subject,
-    };
+    });
 
-    await sgMail.send(msg as any);
-    console.log('✅ Email sent successfully to:', options.to);
+    if (error) {
+      console.error('❌ Resend error:', error);
+      return false;
+    }
+
+    console.log('✅ Email sent successfully to:', recipient);
     return true;
   } catch (error: any) {
     console.error('❌ Email sending failed:', error);
-
-    if (error.response) {
-      console.error('SendGrid error:', error.response.body);
-    }
-
     return false;
   }
 }

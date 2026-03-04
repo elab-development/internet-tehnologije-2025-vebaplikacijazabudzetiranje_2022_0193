@@ -1,2 +1,15 @@
-# Force LF line endings for shell scripts (prevents Windows CRLF corruption)
+# Force LF line endings for all text files on every OS
+* text=auto eol=lf
+
+# Shell scripts — always LF (critical for Docker on Linux)
 *.sh text eol=lf
+
+# Explicitly mark binary files so Git never touches their line endings
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary

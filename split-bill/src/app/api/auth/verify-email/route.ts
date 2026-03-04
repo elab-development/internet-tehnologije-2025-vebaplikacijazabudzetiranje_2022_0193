@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { createErrorResponse, handleApiError } from '@/lib/utils/api-error';
+import { sendVerificationEmail } from '@/lib/email/send';
+
+const BASE_URL = process.env.NEXTAUTH_URL || 'http://localhost:3000';
 
 /**
- * GET /api/auth/verify-email?token=xxx
- * Verifikacija email adrese korisnika
- * 
- * Za MVP - automatski verifikujemo sve korisnike
- * U production verziji - koristiti JWT token ili random string
+ * GET /api/auth/verify-email?userId=xxx
+ * Verifikacija email adrese — korisnik dolazi klikom na link iz emaila.
+ * Nakon uspješne verifikacije redirectuje na /login?verified=1
  */
 export async function GET(req: NextRequest) {
   try {
@@ -15,40 +16,34 @@ export async function GET(req: NextRequest) {
     const userId = searchParams.get('userId');
 
     if (!userId) {
-      return createErrorResponse('User ID is required', 400);
+      return NextResponse.redirect(`${BASE_URL}/login?error=invalid_link`);
     }
 
-    // Pronađi korisnika
     const user = await prisma.user.findUnique({
       where: { id: userId },
     });
 
     if (!user) {
-      return createErrorResponse('User not found', 404);
+      return NextResponse.redirect(`${BASE_URL}/login?error=invalid_link`);
     }
 
     if (user.emailVerified) {
-      return NextResponse.json({
-        message: 'Email already verified',
-      });
+      return NextResponse.redirect(`${BASE_URL}/login?verified=already`);
     }
 
-    // Verifikuj email
     await prisma.user.update({
       where: { id: userId },
       data: { emailVerified: true },
     });
 
-    return NextResponse.json({
-      message: 'Email verified successfully. You can now log in.',
-    });
+    return NextResponse.redirect(`${BASE_URL}/login?verified=1`);
   } catch (error) {
     return handleApiError(error);
   }
 }
 
 /**
- * POST /api/auth/verify-email/resend
+ * POST /api/auth/verify-email
  * Ponovno slanje verifikacionog email-a
  */
 export async function POST(req: NextRequest) {
@@ -74,11 +69,14 @@ export async function POST(req: NextRequest) {
       return createErrorResponse('Email already verified', 400);
     }
 
-    // TODO: Pošalji novi verifikacioni email
-    // await sendVerificationEmail(user.email, user.id);
+    const verificationUrl = `${BASE_URL}/api/auth/verify-email?userId=${user.id}`;
+    await sendVerificationEmail(user.email, {
+      name: user.name,
+      verificationUrl,
+    });
 
     return NextResponse.json({
-      message: 'Verification email sent.',
+      message: 'If the email exists, a verification link has been sent.',
     });
   } catch (error) {
     return handleApiError(error);

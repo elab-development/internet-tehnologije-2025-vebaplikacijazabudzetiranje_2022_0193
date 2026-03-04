@@ -25,8 +25,9 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
-  // Proveri da li postoji error u URL-u (od NextAuth redirect-a)
+  // URL params from NextAuth or verify-email redirect
   const urlError = searchParams.get('error');
+  const verified = searchParams.get('verified');
 
   /**
    * Handle form submission
@@ -52,8 +53,13 @@ function LoginForm() {
       });
 
       if (result?.error) {
-        // Login neuspešan
-        setError('Invalid email or password');
+        // NextAuth wraps custom errors as 'CredentialsSignin'.
+        // We re-check by attempting to distinguish via the error detail.
+        if (result.error === 'Please verify your email before logging in') {
+          setError('Please verify your email before signing in. Check your inbox.');
+        } else {
+          setError('Invalid email or password');
+        }
         setIsLoading(false);
       } else {
         // Login uspešan - redirektuj na dashboard
@@ -85,8 +91,35 @@ function LoginForm() {
             Sign In
           </h2>
 
+          {/* Success: email verified */}
+          {verified === '1' && (
+            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+              <p className="text-sm text-green-700 font-medium">
+                ✅ Email verified! You can now sign in.
+              </p>
+            </div>
+          )}
+
+          {/* Info: already verified */}
+          {verified === 'already' && (
+            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm text-blue-700">
+                Your email is already verified. Please sign in.
+              </p>
+            </div>
+          )}
+
+          {/* Error: invalid/expired link */}
+          {urlError === 'invalid_link' && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-600">
+                Invalid or expired verification link. Please register again or contact support.
+              </p>
+            </div>
+          )}
+
           {/* Error Messages */}
-          {(error || urlError) && (
+          {(error || (urlError && urlError !== 'invalid_link')) && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-sm text-red-600">
                 {error || 'Authentication error. Please try again.'}
