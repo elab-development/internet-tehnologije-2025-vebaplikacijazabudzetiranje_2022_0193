@@ -1,8 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Required for Docker standalone deployment
-  output: 'standalone',
+  // 'standalone' is required for Docker self-hosted deployment.
+  // Vercel manages its own serverless infrastructure and must NOT use standalone
+  // output — it prevents API routes from being registered as edge functions.
+  // Set DOCKER_BUILD=1 in the Dockerfile builder stage to enable it.
+  output: process.env.DOCKER_BUILD === '1' ? 'standalone' : undefined,
 
   // ============================================
   // Security headers

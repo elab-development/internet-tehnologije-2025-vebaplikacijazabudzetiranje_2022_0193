@@ -53,6 +53,8 @@ console.log('Compiled seed.ts → seed.js');\
 # Set environment to production
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
+# Signal to next.config.ts that this is a Docker build → enables standalone output
+ENV DOCKER_BUILD 1
 
 # Build Next.js application
 RUN npm run build
