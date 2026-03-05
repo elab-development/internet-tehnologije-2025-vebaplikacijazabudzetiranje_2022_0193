@@ -33,7 +33,7 @@ export default function JoinGroupPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to join group');
+        throw new Error(data.error || 'Greška pri pridruživanju grupi');
       }
 
       setGroupName(data.groupName);
@@ -69,17 +69,17 @@ export default function JoinGroupPage() {
 
         {!isLoading && !error && !groupName && (
           <>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Join Group</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Pridruži se grupi</h2>
             <p className="text-gray-600 mb-6">
-              You've been invited to join a group on SplitBill
+              Pozvani ste da se pridružite grupi na SplitBill-u
             </p>
           </>
         )}
 
         {isLoading && (
           <>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Joining Group...</h2>
-            <p className="text-gray-600 mb-6">Please wait while we add you to the group</p>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Pridruživanje grupi...</h2>
+            <p className="text-gray-600 mb-6">Molimo sačekajte dok vas dodajemo u grupu</p>
             <div className="flex justify-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
             </div>
@@ -88,7 +88,7 @@ export default function JoinGroupPage() {
 
         {error && (
           <>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Error</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Greška</h2>
             <div className="mb-6 p-3 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-sm text-red-600">{error}</p>
             </div>
@@ -96,7 +96,7 @@ export default function JoinGroupPage() {
               onClick={() => router.push('/dashboard')}
               className="w-full bg-primary-600 text-white py-2 px-4 rounded-lg hover:bg-primary-700 transition"
             >
-              Go to Dashboard
+              Idi na kontrolnu tablu
             </button>
           </>
         )}
@@ -117,10 +117,10 @@ export default function JoinGroupPage() {
                   d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
-              <p className="text-sm text-green-600 font-medium">Successfully joined!</p>
+              <p className="text-sm text-green-600 font-medium">Uspešno ste se pridružili!</p>
             </div>
-            <p className="text-gray-600 mb-4">You've joined <strong>{groupName}</strong></p>
-            <p className="text-sm text-gray-500">Redirecting to group...</p>
+            <p className="text-gray-600 mb-4">Pridružili ste se grupi <strong>{groupName}</strong></p>
+            <p className="text-sm text-gray-500">Preusmeravanje na grupu...</p>
           </>
         )}
       </div>

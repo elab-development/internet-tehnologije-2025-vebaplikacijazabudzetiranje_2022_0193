@@ -139,8 +139,8 @@ export function rateLimit(config: Partial<RateLimitConfig> = {}) {
  * Strict rate limiter for sensitive endpoints (login, register)
  */
 export const strictRateLimit = rateLimit({
-  max: 50, // 50 zahteva
-  windowMs: 5 * 60 * 1000, // 5 minuta
+  max: 100, // 100 zahteva
+  windowMs: 1 * 60 * 1000, // 1 minut se osvezava!
   message: 'Too many attempts, please try again in 5 minutes.',
 });
 

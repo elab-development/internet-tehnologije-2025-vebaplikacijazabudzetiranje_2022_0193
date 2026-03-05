@@ -43,10 +43,10 @@ export default function LandingPage() {
             </div>
             <div className="flex items-center gap-3">
               <Link href="/login">
-                <Button variant="ghost">Sign In</Button>
+                <Button variant="ghost">Prijava</Button>
               </Link>
               <Link href="/register">
-                <Button variant="primary">Get Started</Button>
+                <Button variant="primary">Počni</Button>
               </Link>
             </div>
           </div>
@@ -57,22 +57,21 @@ export default function LandingPage() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="text-center max-w-3xl mx-auto">
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-            Split expenses with{' '}
-            <span className="text-primary-600">friends & family</span>
+            Podeli troškove sa
+            <span className="text-primary-600"> prijateljima i porodicom</span>
           </h1>
           <p className="text-xl text-gray-600 mb-8">
-            Track shared expenses, settle up with friends, and keep everyone on
-            the same page. Simple, fair, and transparent.
+            Prati zajedničke troškove, namiri dugove sa prijateljima i drži sve u toku. Jednostavno, pravično i transparentno.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/register">
               <Button variant="primary" size="lg">
-                Create Free Account
+                Kreiraj besplatan nalog
               </Button>
             </Link>
             <Link href="/login">
               <Button variant="outline" size="lg">
-                Sign In
+                Prijavi se
               </Button>
             </Link>
           </div>
@@ -83,19 +82,19 @@ export default function LandingPage() {
           <div className="absolute inset-0 bg-gradient-to-r from-primary-400 to-primary-600 rounded-2xl transform rotate-1"></div>
           <div className="relative bg-white rounded-2xl shadow-2xl p-8 transform -rotate-1">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card title="Create Groups" padding="md">
+              <Card title="Kreiraj grupe" padding="md">
                 <p className="text-gray-600 text-sm">
-                  Organize expenses by trip, household, or event
+                  Organizuj troškove po putovanju, domaćinstvu ili događaju
                 </p>
               </Card>
-              <Card title="Add Expenses" padding="md">
+              <Card title="Dodaj troškove" padding="md">
                 <p className="text-gray-600 text-sm">
-                  Track who paid and split costs fairly
+                  Prati ko je platio i podeli troškove pravično
                 </p>
               </Card>
-              <Card title="Settle Up" padding="md">
+              <Card title="Namiri dugove" padding="md">
                 <p className="text-gray-600 text-sm">
-                  See who owes what and settle debts easily
+                  Vidi ko duguje šta i namiri dugove lako
                 </p>
               </Card>
             </div>
@@ -108,10 +107,10 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Why choose SplitBill?
+              Zašto SplitBill?
             </h2>
             <p className="text-lg text-gray-600">
-              Everything you need to manage shared expenses
+              Sve što vam treba za upravljanje zajedničkim troškovima
             </p>
           </div>
 
@@ -134,11 +133,10 @@ export default function LandingPage() {
                 </svg>
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                Group Management
+                Upravljanje grupama
               </h3>
               <p className="text-gray-600">
-                Create unlimited groups for different occasions and manage
-                members easily
+                Kreiraj neograničen broj grupa za različite prilike i lako upravljaj članovima
               </p>
             </div>
 
@@ -160,10 +158,10 @@ export default function LandingPage() {
                 </svg>
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                Smart Splitting
+                Pametna podela
               </h3>
               <p className="text-gray-600">
-                Split expenses equally, by percentage, or custom amounts
+                Podeli troškove jednako, po procentu ili po sopstvenom izboru
               </p>
             </div>
 
@@ -185,10 +183,10 @@ export default function LandingPage() {
                 </svg>
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                Expense Tracking
+                Praćenje troškova
               </h3>
               <p className="text-gray-600">
-                Categorize expenses and see detailed spending reports
+                Kategoriši troškove i pregledaj detaljne izveštaje potrošnje
               </p>
             </div>
 
@@ -210,10 +208,10 @@ export default function LandingPage() {
                 </svg>
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                Secure & Private
+                Sigurno i privatno
               </h3>
               <p className="text-gray-600">
-                Your data is encrypted and only visible to group members
+                Tvoji podaci su šifrovani i vidljivi samo članovima grupe
               </p>
             </div>
 
@@ -235,10 +233,10 @@ export default function LandingPage() {
                 </svg>
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                Real-time Updates
+                Ažuriranja u realnom vremenu
               </h3>
               <p className="text-gray-600">
-                See changes instantly as expenses are added or settled
+                Odmah vidi izmene kada se troškovi dodaju ili namire
               </p>
             </div>
 
@@ -260,10 +258,10 @@ export default function LandingPage() {
                 </svg>
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                Mobile Friendly
+                Prilagođeno mobilnim uređajima
               </h3>
               <p className="text-gray-600">
-                Works perfectly on all devices - desktop, tablet, and mobile
+                Radi savršeno na svim uređajima - računar, tablet i mobilni telefon
               </p>
             </div>
           </div>
@@ -274,14 +272,14 @@ export default function LandingPage() {
       <section className="bg-primary-600 py-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Ready to simplify your shared expenses?
+            Spreman da pojednostaviš zajedničke troškove?
           </h2>
           <p className="text-xl text-primary-100 mb-8">
-            Join thousands of users managing their group expenses with SplitBill
+            Pridruži se hiljadama korisnika koji upravljaju grupnim troškovima sa SplitBill-om
           </p>
           <Link href="/register">
             <Button variant="secondary" size="lg">
-              Get Started for Free
+              Počni besplatno
             </Button>
           </Link>
         </div>
@@ -301,7 +299,7 @@ export default function LandingPage() {
               © 2026 SplitBill. ITEH.
             </p>
             <p className="text-xs mt-2">
-              Built with Next.js, TypeScript, Prisma & PostgreSQL
+              Izrađeno sa Next.js, TypeScript, Prisma i PostgreSQL
             </p>
           </div>
         </div>

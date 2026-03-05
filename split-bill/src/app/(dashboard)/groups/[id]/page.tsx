@@ -128,12 +128,12 @@ export default function GroupDetailsPage() {
 
       if (!response.ok) {
         if (response.status === 404) {
-          throw new Error('Group not found');
+          throw new Error('Grupa nije pronađena');
         }
         if (response.status === 403) {
-          throw new Error('You are not a member of this group');
+          throw new Error('Nisi član ove grupe');
         }
-        throw new Error('Failed to load group');
+        throw new Error('Greška pri učitavanju grupe');
       }
 
       const data = await response.json();
@@ -146,7 +146,7 @@ export default function GroupDetailsPage() {
   };
 
   const handleDeleteGroup = async () => {
-    if (!confirm('Are you sure you want to delete this group? This action cannot be undone.')) {
+    if (!confirm('Da li ste sigurni da želite da obrišete ovu grupu? Ova radnja se ne može poništiti.')) {
       return;
     }
 
@@ -156,7 +156,7 @@ export default function GroupDetailsPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete group');
+        throw new Error('Greška pri brisanju grupe');
       }
 
       router.push('/dashboard');
@@ -168,7 +168,7 @@ export default function GroupDetailsPage() {
   const copyInviteLink = () => {
     const inviteLink = `${window.location.origin}/groups/join/${group?.inviteCode}`;
     navigator.clipboard.writeText(inviteLink);
-    alert('Invite link copied to clipboard!');
+    alert('Pozivni link je kopiran u clipboard!');
   };
 
   const handleRecordSettlement = async (debt: OptimizedDebt) => {
@@ -183,7 +183,7 @@ export default function GroupDetailsPage() {
 
   const handleSubmitSettlement = async () => {
     if (!settlementForm.toUserId || !settlementForm.amount) {
-      alert('Please fill in all required fields');
+      alert('Molimo popunite sva obavezna polja');
       return;
     }
 
@@ -203,7 +203,7 @@ export default function GroupDetailsPage() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Failed to record settlement');
+        throw new Error(data.error || 'Greška pri beleženju poravnanja');
       }
 
       // Success - reset form and refresh balances
@@ -215,16 +215,16 @@ export default function GroupDetailsPage() {
         comment: '',
       });
       await fetchBalances();
-      alert('Settlement recorded successfully!');
+      alert('Poravnanje je uspešno zabeleženo!');
     } catch (err: any) {
-      alert(err.message || 'Failed to record settlement');
+      alert(err.message || 'Greška pri beleženju poravnanja');
     } finally {
       setIsSubmittingSettlement(false);
     }
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString('sr-Latn', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -262,10 +262,10 @@ export default function GroupDetailsPage() {
               />
             </svg>
             <h2 className="text-xl font-bold text-gray-900 mb-2">
-              {error || 'Group not found'}
+              {error || 'Grupa nije pronađena'}
             </h2>
             <Button variant="primary" onClick={() => router.push('/dashboard')}>
-              Back to Dashboard
+              Nazad na kontrolnu tablu
             </Button>
           </div>
         </Card>
@@ -293,11 +293,11 @@ export default function GroupDetailsPage() {
                     </svg>
                   }
                 >
-                  Back
+                  Nazad
                 </Button>
                 {isOwner && (
                   <span className="px-2 py-1 bg-primary-100 text-primary-700 text-xs font-medium rounded">
-                    Owner
+                    Vlasnik
                   </span>
                 )}
               </div>
@@ -308,11 +308,11 @@ export default function GroupDetailsPage() {
             </div>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={copyInviteLink}>
-                Invite Members
+                Pozovi članove
               </Button>
               {isOwner && (
                 <Button variant="danger" size="sm" onClick={handleDeleteGroup}>
-                  Delete Group
+                  Obriši grupu
                 </Button>
               )}
             </div>
@@ -325,7 +325,7 @@ export default function GroupDetailsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column - Members */}
           <div className="lg:col-span-1">
-            <Card title="Members" subtitle={`${group._count.members} members`}>
+            <Card title="Članovi" subtitle={`${group._count.members} članova`}>
               <div className="space-y-3">
                 {group.members.map((member) => (
                   <div
@@ -342,7 +342,7 @@ export default function GroupDetailsPage() {
                         <p className="font-medium text-gray-900">
                           {member.user.name}
                           {member.user.id === group.owner.id && (
-                            <span className="ml-2 text-xs text-primary-600">(Owner)</span>
+                            <span className="ml-2 text-xs text-primary-600">(Vlasnik)</span>
                           )}
                         </p>
                         <p className="text-sm text-gray-500">{member.user.email}</p>
@@ -354,14 +354,14 @@ export default function GroupDetailsPage() {
             </Card>
 
             {/* Stats */}
-            <Card title="Statistics" className="mt-6">
+            <Card title="Statistike" className="mt-6">
               <div className="space-y-4">
                 <div>
-                  <p className="text-sm text-gray-600">Total Expenses</p>
+                  <p className="text-sm text-gray-600">Ukupni troškovi</p>
                   <p className="text-2xl font-bold text-gray-900">{group._count.expenses}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Total Amount</p>
+                  <p className="text-sm text-gray-600">Ukupan iznos</p>
                   <p className="text-2xl font-bold text-gray-900">
                     {formatCurrency(
                       group.expenses.reduce((sum, exp) => sum + parseFloat(exp.amount), 0).toString()
@@ -375,9 +375,9 @@ export default function GroupDetailsPage() {
           {/* Right Column - Expenses */}
           <div className="lg:col-span-2">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900">Expenses</h2>
+              <h2 className="text-xl font-bold text-gray-900">Troškovi</h2>
               <Button variant="primary" onClick={() => router.push(`/groups/${groupId}/expenses/create`)}>
-                Add Expense
+                Dodaj trošak
               </Button>
             </div>
 
@@ -397,9 +397,9 @@ export default function GroupDetailsPage() {
                       d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                     />
                   </svg>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No expenses yet</h3>
-                  <p className="text-gray-600 mb-4">Start tracking expenses in this group</p>
-                  <Button variant="primary">Add First Expense</Button>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Nema troškova</h3>
+                  <p className="text-gray-600 mb-4">Počni da pratiš troškove u ovoj grupi</p>
+                  <Button variant="primary">Dodaj prvi trošak</Button>
                 </div>
               </Card>
             ) : (
@@ -417,7 +417,7 @@ export default function GroupDetailsPage() {
                           </span>
                         </div>
                         <p className="text-sm text-gray-600 mb-3">
-                          Paid by <span className="font-medium">{expense.payer.name}</span> on{' '}
+                          Platio/la <span className="font-medium">{expense.payer.name}</span> dana{' '}
                           {formatDate(expense.date)}
                         </p>
                         <div className="flex flex-wrap gap-2">
@@ -461,7 +461,7 @@ export default function GroupDetailsPage() {
                                 </svg>
                               }
                             >
-                              Edit
+                              Izmeni
                             </Button>
                           </div>
                         )}
@@ -477,30 +477,30 @@ export default function GroupDetailsPage() {
         {/* Balances & Settlement Section */}
         {balanceData && balanceData.optimizedDebts.length > 0 && (
           <div className="mt-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Settlement</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Poravnanje</h2>
 
             {/* Balance Summary */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
               <Card padding="md">
-                <p className="text-sm text-gray-600">Total Debts</p>
+                <p className="text-sm text-gray-600">Ukupni dugovi</p>
                 <p className="text-2xl font-bold text-gray-900 mt-2">
                   ${balanceData.summary.totalDebts.toFixed(2)}
                 </p>
               </Card>
               <Card padding="md">
-                <p className="text-sm text-gray-600">Already Settled</p>
+                <p className="text-sm text-gray-600">Već namireno</p>
                 <p className="text-2xl font-bold text-green-600 mt-2">
                   ${balanceData.summary.totalSettled.toFixed(2)}
                 </p>
               </Card>
               <Card padding="md">
-                <p className="text-sm text-gray-600">Unsettled Amount</p>
+                <p className="text-sm text-gray-600">Nenamireni iznos</p>
                 <p className="text-2xl font-bold text-orange-600 mt-2">
                   ${balanceData.summary.unsettledAmount.toFixed(2)}
                 </p>
               </Card>
               <Card padding="md">
-                <p className="text-sm text-gray-600">Transactions Needed</p>
+                <p className="text-sm text-gray-600">Potrebne transakcije</p>
                 <p className="text-2xl font-bold text-gray-900 mt-2">
                   {balanceData.summary.transactionsNeeded}
                 </p>
@@ -510,7 +510,7 @@ export default function GroupDetailsPage() {
             {/* Optimized Debts List */}
             <Card padding="lg" variant="elevated" className="mb-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Who Owes Whom
+                Ko duguje kome
               </h3>
               <div className="space-y-3">
                 {balanceData.optimizedDebts.map((debt, idx) => (
@@ -521,7 +521,7 @@ export default function GroupDetailsPage() {
                     <div>
                       <p className="font-medium text-gray-900">
                         <span className="text-blue-600">{debt.fromName}</span>
-                        {' owes '}
+                        {' duguje '}
                         <span className="text-green-600">{debt.toName}</span>
                       </p>
                       <p className="text-2xl font-bold text-gray-900 mt-1">
@@ -534,7 +534,7 @@ export default function GroupDetailsPage() {
                         variant="primary"
                         onClick={() => handleRecordSettlement(debt)}
                       >
-                        Pay
+                        Plati
                       </Button>
                     )}
                   </div>
@@ -546,12 +546,12 @@ export default function GroupDetailsPage() {
             {settlingDebt && (
               <Card padding="lg" variant="elevated" className="bg-blue-50">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Record Settlement
+                  Zabeleži poravnanje
                 </h3>
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Amount
+                      Iznos
                     </label>
                     <input
                       type="number"
@@ -570,7 +570,7 @@ export default function GroupDetailsPage() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Date
+                      Datum
                     </label>
                     <input
                       type="date"
@@ -587,7 +587,7 @@ export default function GroupDetailsPage() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Note (Optional)
+                      Napomena (opciono)
                     </label>
                     <textarea
                       value={settlementForm.comment}
@@ -599,7 +599,7 @@ export default function GroupDetailsPage() {
                       }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                       rows={2}
-                      placeholder="e.g., Payment via bank transfer"
+                      placeholder="npr. Uplata putem bankovnog transfera"
                     />
                   </div>
 
@@ -610,7 +610,7 @@ export default function GroupDetailsPage() {
                       disabled={isSubmittingSettlement}
                       className="flex-1"
                     >
-                      Cancel
+                      Otkaži
                     </Button>
                     <Button
                       variant="primary"
@@ -619,7 +619,7 @@ export default function GroupDetailsPage() {
                       disabled={isSubmittingSettlement}
                       className="flex-1"
                     >
-                      {isSubmittingSettlement ? 'Recording...' : 'Record Settlement'}
+                      {isSubmittingSettlement ? 'Beleženje...' : 'Zabeleži poravnanje'}
                     </Button>
                   </div>
                 </div>

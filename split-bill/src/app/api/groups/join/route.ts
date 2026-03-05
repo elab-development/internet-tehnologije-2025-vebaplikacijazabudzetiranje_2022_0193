@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth/api-middleware';
 import { prisma } from '@/lib/db';
 import { handleApiError, createErrorResponse } from '@/lib/utils/api-error';
+import { sendMemberJoinedEmail } from '@/lib/email/send';
 import { z } from 'zod';
 
 const joinGroupSchema = z.object({
@@ -49,12 +50,15 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { inviteCode } = joinGroupSchema.parse(body);
 
-    // Find group by invite code
+    // Find group by invite code (include owner for email notification)
     const group = await prisma.group.findUnique({
       where: { inviteCode },
       include: {
         members: {
           where: { userId: user.id },
+        },
+        owner: {
+          select: { email: true, name: true },
         },
       },
     });
@@ -76,6 +80,13 @@ export async function POST(req: NextRequest) {
         isPending: false,
       },
     });
+
+    // Notify group owner (non-blocking)
+    sendMemberJoinedEmail(group.owner.email, {
+      newMemberName: user.name ?? 'Someone',
+      newMemberEmail: user.email ?? '',
+      groupName: group.name,
+    }).catch(() => {});
 
     return NextResponse.json({
       message: 'Successfully joined group',

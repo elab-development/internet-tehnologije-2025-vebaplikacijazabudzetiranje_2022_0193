@@ -66,9 +66,9 @@ export default function EditExpensePage() {
 
         if (!response.ok) {
           if (response.status === 403) {
-            throw new Error('You do not have permission to edit this expense');
+            throw new Error('Nemate dozvolu da izmenite ovaj trošak');
           }
-          throw new Error('Failed to fetch expense');
+          throw new Error('Greška pri učitavanju troška');
         }
 
         const data = await response.json();
@@ -78,7 +78,7 @@ export default function EditExpensePage() {
         setCategory(data.expense.category);
         setDate(data.expense.date.split('T')[0]);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Unknown error');
+        setError(err instanceof Error ? err.message : 'Nepoznata greška');
       } finally {
         setIsLoading(false);
       }
@@ -96,13 +96,13 @@ export default function EditExpensePage() {
     try {
       // Validation
       if (!description.trim()) {
-        setError('Description is required');
+        setError('Opis je obavezan');
         return;
       }
 
       const parsedAmount = parseFloat(amount);
       if (isNaN(parsedAmount) || parsedAmount <= 0) {
-        setError('Amount must be greater than 0');
+        setError('Iznos mora biti veći od 0');
         return;
       }
 
@@ -123,13 +123,13 @@ export default function EditExpensePage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to update expense');
+        throw new Error(data.error || 'Greška pri ažuriranju troška');
       }
 
       // Success - redirect to group page
       router.push(`/groups/${groupId}`);
     } catch (err: any) {
-      setError(err.message || 'An unexpected error occurred');
+      setError(err.message || 'Došlo je do neočekivane greške');
       setIsSaving(false);
     }
   };
@@ -146,13 +146,13 @@ export default function EditExpensePage() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Failed to delete expense');
+        throw new Error(data.error || 'Greška pri brisanju troška');
       }
 
       // Success - redirect to group page
       router.push(`/groups/${groupId}`);
     } catch (err: any) {
-      setError(err.message || 'An unexpected error occurred');
+      setError(err.message || 'Došlo je do neočekivane greške');
       setIsDeleting(false);
       setShowDeleteConfirm(false);
     }
@@ -171,13 +171,13 @@ export default function EditExpensePage() {
       <div className="min-h-screen bg-gray-50 p-8">
         <div className="max-w-3xl mx-auto">
           <Card padding="lg">
-            <p className="text-red-600">{error || 'Expense not found'}</p>
+            <p className="text-red-600">{error || 'Trošak nije pronađen'}</p>
             <Button
               variant="primary"
               onClick={() => router.push(`/groups/${groupId}`)}
               className="mt-4"
             >
-              Go Back
+              Nazad
             </Button>
           </Card>
         </div>
@@ -211,12 +211,12 @@ export default function EditExpensePage() {
                 </svg>
               }
             >
-              Back
+              Nazad
             </Button>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Edit Expense</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Izmeni trošak</h1>
               <p className="text-sm text-gray-600 mt-1">
-                Paid by {expense.payer.name}
+                Platio/la {expense.payer.name}
               </p>
             </div>
           </div>
@@ -237,20 +237,20 @@ export default function EditExpensePage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Description */}
             <Input
-              label="Description"
+              label="Opis"
               type="text"
-              placeholder="e.g., Dinner, Gas, Rent"
+              placeholder="npr. Večera, Gorivo, Kirija"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               disabled={isSaving || isDeleting}
               required
-              helperText="What was this expense for?"
+              helperText="Za šta je bio ovaj trošak?"
             />
 
             {/* Amount and Category Row */}
             <div className="grid grid-cols-2 gap-4">
               <Input
-                label="Amount"
+                label="Iznos"
                 type="number"
                 placeholder="0.00"
                 value={amount}
@@ -259,12 +259,12 @@ export default function EditExpensePage() {
                 required
                 step="0.01"
                 min="0"
-                helperText="Total expense amount"
+                helperText="Ukupan iznos troška"
               />
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Category
+                  Kategorija
                 </label>
                 <select
                   value={category}
@@ -284,7 +284,7 @@ export default function EditExpensePage() {
 
             {/* Date */}
             <Input
-              label="Date"
+              label="Datum"
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
@@ -296,7 +296,7 @@ export default function EditExpensePage() {
             <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <div className="text-sm">
                 <p className="font-medium text-blue-900 mb-3">
-                  Split Details (Cannot be modified)
+                  Detalji podele (ne mogu se menjati)
                 </p>
                 <div className="space-y-2">
                   {expense.splits.map((split) => (
@@ -320,7 +320,7 @@ export default function EditExpensePage() {
                 disabled={isSaving || isDeleting}
                 className="flex-1"
               >
-                Cancel
+                Otkaži
               </Button>
               <Button
                 type="submit"
@@ -329,7 +329,7 @@ export default function EditExpensePage() {
                 disabled={isSaving || isDeleting}
                 className="flex-1"
               >
-                {isSaving ? 'Saving...' : 'Save Changes'}
+                {isSaving ? 'Čuvanje...' : 'Sačuvaj izmene'}
               </Button>
             </div>
           </form>
@@ -338,11 +338,10 @@ export default function EditExpensePage() {
           <div className="mt-8 pt-8 border-t border-gray-200">
             <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
               <h3 className="text-sm font-medium text-red-900 mb-2">
-                Danger Zone
+                Opasna zona
               </h3>
               <p className="text-sm text-red-700 mb-4">
-                Once you delete this expense, there is no going back. Please be
-                certain.
+                Nakon brisanja troška, nema povratka. Budite sigurni pre nego što nastavite.
               </p>
               <Button
                 type="button"
@@ -351,7 +350,7 @@ export default function EditExpensePage() {
                 disabled={isSaving || isDeleting}
                 className="text-red-600 border-red-300 hover:bg-red-50"
               >
-                Delete Expense
+                Obriši trošak
               </Button>
             </div>
           </div>
@@ -376,11 +375,10 @@ export default function EditExpensePage() {
                   />
                 </svg>
                 <h3 className="text-lg font-bold text-gray-900 mb-2">
-                  Delete Expense?
+                  Obriši trošak?
                 </h3>
                 <p className="text-sm text-gray-600 mb-6">
-                  This will permanently delete "{description}". This action
-                  cannot be undone.
+                  Ovo će trajno obrisati „{description}". Ova radnja se ne može poništiti.
                 </p>
                 <div className="flex gap-3">
                   <Button
@@ -390,7 +388,7 @@ export default function EditExpensePage() {
                     disabled={isDeleting}
                     className="flex-1"
                   >
-                    Cancel
+                    Otkaži
                   </Button>
                   <Button
                     type="button"
@@ -400,7 +398,7 @@ export default function EditExpensePage() {
                     disabled={isDeleting}
                     className="flex-1 bg-red-600 hover:bg-red-700"
                   >
-                    {isDeleting ? 'Deleting...' : 'Delete'}
+                    {isDeleting ? 'Brisanje...' : 'Obriši'}
                   </Button>
                 </div>
               </div>

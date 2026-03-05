@@ -63,7 +63,7 @@ export default function AdminPage() {
         <div className="max-w-4xl mx-auto">
           <div className="bg-red-50 border border-red-200 rounded-lg p-8 text-center">
             <div className="text-5xl mb-4">🔒</div>
-            <h2 className="text-2xl font-bold text-red-800 mb-2">Access Denied</h2>
+            <h2 className="text-2xl font-bold text-red-800 mb-2">Pristup odbijen</h2>
             <p className="text-red-600">Ova stranica je dostupna samo administratorima.</p>
           </div>
         </div>
@@ -97,7 +97,7 @@ export default function AdminPage() {
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900">Admin Panel</h1>
+          <h1 className="text-4xl font-bold text-gray-900">Administratorski panel</h1>
           <p className="text-gray-600 mt-2">
             Ukupno korisnika: <span className="font-semibold text-gray-900">{total}</span>
           </p>

@@ -19,10 +19,7 @@ export function sanitizeInput(input: string): string {
   // Trim whitespace
   let sanitized = input.trim();
 
-  // Remove HTML tags
-  sanitized = sanitizeHtml(sanitized);
-
-  // Escape special characters
+  // Escape special characters (this also neutralizes HTML tags)
   sanitized = sanitized
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')

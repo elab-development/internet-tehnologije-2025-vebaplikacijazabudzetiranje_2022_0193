@@ -1,5 +1,4 @@
 'use client';
-
 import { useState, FormEvent, Suspense } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -40,7 +39,7 @@ function LoginForm() {
     try {
       // Validacija
       if (!email || !password) {
-        setError('Please fill in all fields');
+        setError('Molimo popuni sva polja');
         setIsLoading(false);
         return;
       }
@@ -56,9 +55,9 @@ function LoginForm() {
         // NextAuth wraps custom errors as 'CredentialsSignin'.
         // We re-check by attempting to distinguish via the error detail.
         if (result.error === 'Please verify your email before logging in') {
-          setError('Please verify your email before signing in. Check your inbox.');
+          setError('Molimo verifikuj email pre prijave. Proveri sandučić.');
         } else {
-          setError('Invalid email or password');
+          setError('Nevažeći email ili lozinka');
         }
         setIsLoading(false);
       } else {
@@ -67,7 +66,7 @@ function LoginForm() {
         router.refresh(); // Refresh server components
       }
     } catch (err) {
-      setError('An unexpected error occurred');
+      setError('Došlo je do neočekivane greške');
       setIsLoading(false);
     }
   };
@@ -81,21 +80,21 @@ function LoginForm() {
             SplitBill
           </h1>
           <p className="text-gray-600">
-            Share expenses with friends and family
+            Deli troškove sa prijateljima i porodicom
           </p>
         </div>
 
         {/* Login Card */}
         <Card padding="lg" variant="elevated">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">
-            Sign In
+            Prijavi se
           </h2>
 
           {/* Success: email verified */}
           {verified === '1' && (
             <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
               <p className="text-sm text-green-700 font-medium">
-                ✅ Email verified! You can now sign in.
+                ✅ Email je verifikovan! Sada se možeš prijaviti.
               </p>
             </div>
           )}
@@ -104,7 +103,7 @@ function LoginForm() {
           {verified === 'already' && (
             <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
               <p className="text-sm text-blue-700">
-                Your email is already verified. Please sign in.
+                Tvoj email je već verifikovan. Molimo prijavi se.
               </p>
             </div>
           )}
@@ -113,7 +112,7 @@ function LoginForm() {
           {urlError === 'invalid_link' && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-sm text-red-600">
-                Invalid or expired verification link. Please register again or contact support.
+                Nevažeći ili istekli link za verifikaciju. Molimo registruj se ponovo ili kontaktiraj podršku.
               </p>
             </div>
           )}
@@ -122,7 +121,7 @@ function LoginForm() {
           {(error || (urlError && urlError !== 'invalid_link')) && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-sm text-red-600">
-                {error || 'Authentication error. Please try again.'}
+                {error || 'Greška pri autentikaciji. Molimo pokušaj ponovo.'}
               </p>
             </div>
           )}
@@ -130,7 +129,7 @@ function LoginForm() {
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
-              label="Email Address"
+              label="Email adresa"
               type="email"
               placeholder="you@example.com"
               value={email}
@@ -155,7 +154,7 @@ function LoginForm() {
             />
 
             <Input
-              label="Password"
+              label="Lozinka"
               type="password"
               placeholder="••••••••"
               value={password}
@@ -185,26 +184,26 @@ function LoginForm() {
               fullWidth
               isLoading={isLoading}
             >
-              {isLoading ? 'Signing in...' : 'Sign In'}
+              {isLoading ? 'Prijavljivanje...' : 'Prijavi se'}
             </Button>
           </form>
 
           {/* Divider */}
           <div className="my-6 flex items-center">
             <div className="flex-1 border-t border-gray-300"></div>
-            <span className="px-4 text-sm text-gray-500">OR</span>
+            <span className="px-4 text-sm text-gray-500">ILI</span>
             <div className="flex-1 border-t border-gray-300"></div>
           </div>
 
           {/* Register Link */}
           <div className="text-center">
             <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
+              Nemaš nalog?{' '}
               <Link
                 href="/register"
                 className="text-primary-600 hover:text-primary-700 font-medium"
               >
-                Sign up
+                Registruj se
               </Link>
             </p>
           </div>
@@ -212,7 +211,7 @@ function LoginForm() {
           {/* Test Credentials */}
           <div className="mt-6 p-4 bg-gray-50 rounded-lg">
             <p className="text-xs font-medium text-gray-700 mb-2">
-              Test Credentials:
+              Test podaci za prijavu:
             </p>
             <div className="space-y-1 text-xs text-gray-600">
               <p>Admin: admin@splitbill.com / Admin123!</p>

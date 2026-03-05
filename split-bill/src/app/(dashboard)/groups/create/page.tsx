@@ -34,7 +34,7 @@ export default function CreateGroupPage() {
     try {
       // Validacija
       if (!name.trim()) {
-        setError('Group name is required');
+        setError('Naziv grupe je obavezan');
         setIsLoading(false);
         return;
       }
@@ -54,13 +54,13 @@ export default function CreateGroupPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to create group');
+        throw new Error(data.error || 'Greška pri kreiranju grupe');
       }
 
       // Success - redirect to group page
       router.push(`/groups/${data.group.id}`);
     } catch (err: any) {
-      setError(err.message || 'An unexpected error occurred');
+      setError(err.message || 'Došlo je do neočekivane greške');
       setIsLoading(false);
     }
   };
@@ -97,13 +97,13 @@ export default function CreateGroupPage() {
               />
             </svg>
             <h2 className="text-xl font-bold text-gray-900 mb-2">
-              Access Denied
+              Pristup odbijen
             </h2>
             <p className="text-gray-600 mb-4">
-              Only EDITOR and ADMIN users can create groups.
+              Samo korisnici sa ulogom EDITOR i ADMIN mogu kreirati grupe.
             </p>
             <Button variant="primary" onClick={() => router.push('/dashboard')}>
-              Go to Dashboard
+              Idi na kontrolnu tablu
             </Button>
           </div>
         </Card>
@@ -137,14 +137,14 @@ export default function CreateGroupPage() {
                 </svg>
               }
             >
-              Back
+              Nazad
             </Button>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                Create New Group
+                Kreiraj novu grupu
               </h1>
               <p className="text-sm text-gray-600 mt-1">
-                Start sharing expenses with friends and family
+                Počni da deliš troškove sa prijateljima i porodicom
               </p>
             </div>
           </div>
@@ -164,31 +164,31 @@ export default function CreateGroupPage() {
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
             <Input
-              label="Group Name"
+              label="Naziv grupe"
               type="text"
-              placeholder="e.g., Apartment Expenses, Weekend Trip"
+              placeholder="npr. Troškovi stana, Vikend putovanje"
               value={name}
               onChange={(e) => setName(e.target.value)}
               disabled={isLoading}
               required
-              helperText="Choose a descriptive name for your group"
+              helperText="Izaberi opisni naziv za grupu"
             />
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Description
+                Opis
               </label>
               <textarea
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 disabled:opacity-50"
                 rows={4}
-                placeholder="Optional: Add a description for this group"
+                placeholder="Opciono: Dodaj opis za ovu grupu"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 disabled={isLoading}
                 maxLength={500}
               />
               <p className="text-sm text-gray-500 mt-1">
-                {description.length}/500 characters
+                {description.length}/500 karaktera
               </p>
             </div>
 
@@ -209,11 +209,11 @@ export default function CreateGroupPage() {
                   />
                 </svg>
                 <div className="text-sm text-blue-700">
-                  <p className="font-medium mb-1">What happens next?</p>
+                  <p className="font-medium mb-1">Šta se dešava dalje?</p>
                   <ul className="list-disc list-inside space-y-1">
-                    <li>You will be added as the group owner</li>
-                    <li>You can invite members via email</li>
-                    <li>Start adding expenses to track spending</li>
+                    <li>Bićeš dodat/a kao vlasnik grupe</li>
+                    <li>Možeš pozivati članove putem emaila</li>
+                    <li>Počni da dodaješ troškove za praćenje potrošnje</li>
                   </ul>
                 </div>
               </div>
@@ -228,7 +228,7 @@ export default function CreateGroupPage() {
                 disabled={isLoading}
                 className="flex-1"
               >
-                Cancel
+                Otkaži
               </Button>
               <Button
                 type="submit"
@@ -236,7 +236,7 @@ export default function CreateGroupPage() {
                 isLoading={isLoading}
                 className="flex-1"
               >
-                {isLoading ? 'Creating...' : 'Create Group'}
+                {isLoading ? 'Kreiranje...' : 'Kreiraj grupu'}
               </Button>
             </div>
           </form>

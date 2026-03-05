@@ -29,16 +29,16 @@ export default function RegisterPage() {
    */
   const validatePassword = (pwd: string): string | null => {
     if (pwd.length < 8) {
-      return 'Password must be at least 8 characters';
+      return 'Lozinka mora imati najmanje 8 karaktera';
     }
     if (!/(?=.*[a-z])/.test(pwd)) {
-      return 'Password must contain at least one lowercase letter';
+      return 'Lozinka mora sadržati najmanje jedno malo slovo';
     }
     if (!/(?=.*[A-Z])/.test(pwd)) {
-      return 'Password must contain at least one uppercase letter';
+      return 'Lozinka mora sadržati najmanje jedno veliko slovo';
     }
     if (!/(?=.*\d)/.test(pwd)) {
-      return 'Password must contain at least one number';
+      return 'Lozinka mora sadržati najmanje jedan broj';
     }
     return null;
   };
@@ -54,13 +54,13 @@ export default function RegisterPage() {
     try {
       // Client-side validation
       if (!email || !password || !name) {
-        setError('All fields are required');
+        setError('Sva polja su obavezna');
         setIsLoading(false);
         return;
       }
 
       if (password !== confirmPassword) {
-        setError('Passwords do not match');
+        setError('Lozinke se ne poklapaju');
         setIsLoading(false);
         return;
       }
@@ -88,13 +88,13 @@ export default function RegisterPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Registration failed');
+        throw new Error(data.error || 'Greška pri registraciji');
       }
 
       // Success — wait for user to verify email, do NOT auto-verify
       setSuccess(true);
     } catch (err: any) {
-      setError(err.message || 'An unexpected error occurred');
+      setError(err.message || 'Došlo je do neočekivane greške');
       setIsLoading(false);
     }
   };
@@ -121,20 +121,20 @@ export default function RegisterPage() {
               </svg>
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Check your email!
+              Proveri email!
             </h2>
             <p className="text-gray-600 mb-4">
-              We sent a verification link to <strong>{email}</strong>.
-              Click the link to activate your account.
+              Poslali smo link za verifikaciju na <strong>{email}</strong>.
+              Klikni na link da aktiviraš nalog.
             </p>
             <p className="text-sm text-gray-500 mb-6">
-              Didn&apos;t receive it? Check your spam folder.
+              Nisi primio? Proveri spam folder.
             </p>
             <Link
               href="/login"
               className="inline-block text-sm font-medium text-primary-600 hover:text-primary-700 underline"
             >
-              Back to Sign In
+              Nazad na prijavu
             </Link>
           </div>
         </Card>
@@ -150,12 +150,12 @@ export default function RegisterPage() {
           <h1 className="text-4xl font-bold text-primary-600 mb-2">
             SplitBill
           </h1>
-          <p className="text-gray-600">Create your account</p>
+          <p className="text-gray-600">Kreiraj nalog</p>
         </div>
 
         {/* Register Card */}
         <Card padding="lg" variant="elevated">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Sign Up</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Registracija</h2>
 
           {/* Error Message */}
           {error && (
@@ -167,9 +167,9 @@ export default function RegisterPage() {
           {/* Register Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
-              label="Full Name"
+              label="Puno ime"
               type="text"
-              placeholder="John Doe"
+              placeholder="Marko Markovic"
               value={name}
               onChange={(e) => setName(e.target.value)}
               disabled={isLoading}
@@ -192,7 +192,7 @@ export default function RegisterPage() {
             />
 
             <Input
-              label="Email Address"
+              label="Email adresa"
               type="email"
               placeholder="you@example.com"
               value={email}
@@ -217,14 +217,14 @@ export default function RegisterPage() {
             />
 
             <Input
-              label="Password"
+              label="Lozinka"
               type="password"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={isLoading}
               required
-              helperText="Min 8 characters, 1 uppercase, 1 lowercase, 1 number"
+              helperText="Min 8 karaktera, 1 veliko slovo, 1 malo slovo, 1 broj"
               leftIcon={
                 <svg
                   className="w-5 h-5"
@@ -243,7 +243,7 @@ export default function RegisterPage() {
             />
 
             <Input
-              label="Confirm Password"
+              label="Potvrdi lozinku"
               type="password"
               placeholder="••••••••"
               value={confirmPassword}
@@ -273,26 +273,26 @@ export default function RegisterPage() {
               fullWidth
               isLoading={isLoading}
             >
-              {isLoading ? 'Creating account...' : 'Create Account'}
+              {isLoading ? 'Kreiranje naloga...' : 'Kreiraj nalog'}
             </Button>
           </form>
 
           {/* Divider */}
           <div className="my-6 flex items-center">
             <div className="flex-1 border-t border-gray-300"></div>
-            <span className="px-4 text-sm text-gray-500">OR</span>
+            <span className="px-4 text-sm text-gray-500">ILI</span>
             <div className="flex-1 border-t border-gray-300"></div>
           </div>
 
           {/* Login Link */}
           <div className="text-center">
             <p className="text-sm text-gray-600">
-              Already have an account?{' '}
+              Već imaš nalog?{' '}
               <Link
                 href="/login"
                 className="text-primary-600 hover:text-primary-700 font-medium"
               >
-                Sign in
+                Prijavi se
               </Link>
             </p>
           </div>

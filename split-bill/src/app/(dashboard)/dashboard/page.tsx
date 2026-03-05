@@ -39,13 +39,13 @@ export default function DashboardPage() {
         const response = await fetch('/api/dashboard/stats');
 
         if (!response.ok) {
-          throw new Error('Failed to fetch dashboard stats');
+          throw new Error('Greška pri učitavanju statistika');
         }
 
         const data = await response.json();
         setStats(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Unknown error');
+        setError(err instanceof Error ? err.message : 'Nepoznata greška');
       } finally {
         setIsLoading(false);
       }
@@ -93,7 +93,7 @@ export default function DashboardPage() {
       <div className="min-h-screen bg-gray-50 p-8">
         <div className="max-w-4xl mx-auto">
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="text-red-800">{error || 'Failed to load dashboard'}</p>
+            <p className="text-red-800">{error || 'Greška pri učitavanju kontrolne table'}</p>
           </div>
         </div>
       </div>
@@ -107,8 +107,8 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600 mt-2">Welcome back! Here's your expense summary.</p>
+          <h1 className="text-4xl font-bold text-gray-900">Kontrolna tabla</h1>
+          <p className="text-gray-600 mt-2">Dobrodošli nazad! Evo pregleda vaših troškova.</p>
         </div>
 
         <div
@@ -116,10 +116,10 @@ export default function DashboardPage() {
             isOwing ? 'bg-red-600' : 'bg-green-600'
           }`}
         >
-          <p className="text-lg opacity-90">Your Balance</p>
+          <p className="text-lg opacity-90">Vaš saldo</p>
           <p className="text-5xl font-bold mt-2">{symbol}{convert(absBalance)}</p>
           <p className="text-lg opacity-90 mt-4">
-            {isOwing ? 'You owe' : 'You are owed'} money
+            {isOwing ? 'Dugujete' : 'Vama duguju'} novac
           </p>
         </div>
 
@@ -127,7 +127,7 @@ export default function DashboardPage() {
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">You Paid</p>
+                <p className="text-sm font-medium text-gray-600">Platili ste</p>
                 <p className="text-3xl font-bold text-gray-900 mt-2">
                   {symbol}{convert(stats.totalOwed)}
                 </p>
@@ -139,7 +139,7 @@ export default function DashboardPage() {
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">You Owe</p>
+                <p className="text-sm font-medium text-gray-600">Dugujete</p>
                 <p className="text-3xl font-bold text-gray-900 mt-2">
                   {symbol}{convert(stats.totalOwing)}
                 </p>
@@ -151,7 +151,7 @@ export default function DashboardPage() {
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Groups</p>
+                <p className="text-sm font-medium text-gray-600">Grupe</p>
                 <p className="text-3xl font-bold text-gray-900 mt-2">{stats.groupsCount}</p>
               </div>
               <div className="text-4xl">👥</div>
@@ -161,7 +161,7 @@ export default function DashboardPage() {
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Expenses</p>
+                <p className="text-sm font-medium text-gray-600">Troškovi</p>
                 <p className="text-3xl font-bold text-gray-900 mt-2">{stats.expensesCount}</p>
               </div>
               <div className="text-4xl">📝</div>
@@ -171,7 +171,7 @@ export default function DashboardPage() {
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Members</p>
+                <p className="text-sm font-medium text-gray-600">Članovi</p>
                 <p className="text-3xl font-bold text-gray-900 mt-2">{stats.membersCount}</p>
               </div>
               <div className="text-4xl">👤</div>
@@ -181,7 +181,7 @@ export default function DashboardPage() {
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Avg Expense</p>
+                <p className="text-sm font-medium text-gray-600">Prosek troška</p>
                 <p className="text-3xl font-bold text-gray-900 mt-2">
                   {symbol}{stats.expensesCount > 0 ? convert((stats.totalOwed + stats.totalOwing) / stats.expensesCount) : '0.00'}
                 </p>
@@ -194,17 +194,17 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Link href="/groups">
             <div className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition cursor-pointer">
-              <h3 className="text-lg font-semibold text-gray-900">Manage Groups</h3>
-              <p className="text-gray-600 mt-2">View and manage your groups</p>
-              <div className="mt-4 text-primary-600 font-medium">Go to Groups →</div>
+              <h3 className="text-lg font-semibold text-gray-900">Upravljaj grupama</h3>
+              <p className="text-gray-600 mt-2">Pregledaj i upravljaj grupama</p>
+              <div className="mt-4 text-primary-600 font-medium">Idi na grupe →</div>
             </div>
           </Link>
 
           <Link href="/reports">
             <div className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition cursor-pointer">
-              <h3 className="text-lg font-semibold text-gray-900">View Reports</h3>
-              <p className="text-gray-600 mt-2">Analyze your expense trends</p>
-              <div className="mt-4 text-primary-600 font-medium">Go to Reports →</div>
+              <h3 className="text-lg font-semibold text-gray-900">Pregledaj izveštaje</h3>
+              <p className="text-gray-600 mt-2">Analiziraj trendove troškova</p>
+              <div className="mt-4 text-primary-600 font-medium">Idi na izveštaje →</div>
             </div>
           </Link>
         </div>

@@ -6,8 +6,8 @@ import { SessionProvider } from "@/components/providers/SessionProvider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "SplitBill - Expense Sharing App",
-  description: "Share expenses with friends and family",
+  title: "SplitBill - Aplikacija za deljenje troškova",
+  description: "Deli troškove sa prijateljima i porodicom",
 };
 
 export default function RootLayout({
@@ -16,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="sr">
       <body className={inter.className}>
         <SessionProvider>
           {children}

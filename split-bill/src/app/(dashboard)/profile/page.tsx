@@ -26,7 +26,7 @@ export default function ProfilePage() {
         setName(data.user.name || '');
         setBio(data.user.bio || '');
       })
-      .catch((err) => setError('Failed to load profile'));
+      .catch((err) => setError('Greška pri učitavanju profila'));
   }, []);
 
   const handleUpdateProfile = async () => {
@@ -42,10 +42,10 @@ export default function ProfilePage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update profile');
+        throw new Error('Greška pri ažuriranju profila');
       }
 
-      setMessage('Profile updated successfully');
+      setMessage('Profil je uspešno ažuriran');
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -60,7 +60,7 @@ export default function ProfilePage() {
       setMessage('');
 
       if (newPassword !== confirmPassword) {
-        throw new Error('Passwords do not match');
+        throw new Error('Lozinke se ne poklapaju');
       }
 
       const response = await fetch('/api/profile/password', {
@@ -71,10 +71,10 @@ export default function ProfilePage() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Failed to change password');
+        throw new Error(data.error || 'Greška pri promeni lozinke');
       }
 
-      setMessage('Password changed successfully');
+      setMessage('Lozinka je uspešno promenjena');
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
@@ -86,7 +86,7 @@ export default function ProfilePage() {
   };
 
   const handleDeleteAccount = async () => {
-    if (!confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+    if (!confirm('Da li ste sigurni da želite da obrišete nalog? Ova radnja se ne može poništiti.')) {
       return;
     }
 
@@ -96,7 +96,7 @@ export default function ProfilePage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete account');
+        throw new Error('Greška pri brisanju naloga');
       }
 
       await signOut({ callbackUrl: '/' });
@@ -108,7 +108,7 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8">Profile Settings</h1>
+        <h1 className="text-3xl font-bold mb-8">Podešavanja profila</h1>
 
         {message && (
           <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
@@ -124,10 +124,10 @@ export default function ProfilePage() {
 
         {/* Personal Info */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Personal Information</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Lični podaci</h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Ime</label>
               <input
                 type="text"
                 value={name}
@@ -160,32 +160,32 @@ export default function ProfilePage() {
               disabled={isLoading}
               className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 transition"
             >
-              {isLoading ? 'Saving...' : 'Save Changes'}
+              {isLoading ? 'Čuvanje...' : 'Sačuvaj izmene'}
             </button>
           </div>
         </div>
 
         {/* Currency Preference */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Currency Preference</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Preferirana valuta</h2>
           <div className="space-y-4">
             <CurrencySelector
               value={preferredCurrency}
               onChange={(currency) => updateCurrency(currency)}
             />
             <p className="text-sm text-gray-600">
-              All amounts will be displayed in your preferred currency
+              Svi iznosi biće prikazani u vašoj preferiranoj valuti
             </p>
           </div>
         </div>
 
         {/* Change Password */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Change Password</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Promeni lozinku</h2>
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Current Password
+                Trenutna lozinka
               </label>
               <input
                 type="password"
@@ -196,7 +196,7 @@ export default function ProfilePage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                New Password
+                Nova lozinka
               </label>
               <input
                 type="password"
@@ -205,12 +205,12 @@ export default function ProfilePage() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
               <p className="text-sm text-gray-500 mt-1">
-                Min 8 characters, 1 uppercase, 1 lowercase, 1 number
+                Min 8 karaktera, 1 veliko slovo, 1 malo slovo, 1 broj
               </p>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Confirm New Password
+                Potvrdi novu lozinku
               </label>
               <input
                 type="password"
@@ -224,25 +224,25 @@ export default function ProfilePage() {
               disabled={isLoading}
               className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 transition"
             >
-              {isLoading ? 'Changing...' : 'Change Password'}
+              {isLoading ? 'Promena...' : 'Promeni lozinku'}
             </button>
           </div>
         </div>
 
         {/* Danger Zone */}
         <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-red-500">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Danger Zone</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Opasna zona</h2>
           <div className="space-y-4">
             <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-              <h4 className="font-medium text-red-900 mb-2">Delete Account</h4>
+              <h4 className="font-medium text-red-900 mb-2">Obriši nalog</h4>
               <p className="text-sm text-red-700 mb-4">
-                Once you delete your account, there is no going back. Please be certain.
+                Nakon brisanja naloga, nema povratka. Budite sigurni pre nego što nastavite.
               </p>
               <button
                 onClick={handleDeleteAccount}
                 className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
               >
-                Delete My Account
+                Obriši moj nalog
               </button>
             </div>
           </div>

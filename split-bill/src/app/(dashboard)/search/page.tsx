@@ -34,14 +34,14 @@ export default function SearchPage() {
       const response = await fetch(`/api/expenses/search?${params}`);
 
       if (!response.ok) {
-        throw new Error('Search failed');
+        throw new Error('Pretraga nije uspela');
       }
 
       const data = await response.json();
       setResults(data.expenses);
       setTotal(data.total);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Search failed');
+      setError(err instanceof Error ? err.message : 'Pretraga nije uspela');
     } finally {
       setIsLoading(false);
     }
@@ -63,8 +63,8 @@ export default function SearchPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Search Expenses</h1>
-        <p className="text-gray-600 mb-8">Find expenses by description, category, date, or amount</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Pretraži troškove</h1>
+        <p className="text-gray-600 mb-8">Pronađi troškove po opisu, kategoriji, datumu ili iznosu</p>
 
         {/* Search Filters Card */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
@@ -72,11 +72,11 @@ export default function SearchPage() {
             {/* Text Search */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Search Description
+                Pretraži po opisu
               </label>
               <input
                 type="text"
-                placeholder="e.g., dinner, hotel..."
+                placeholder="npr. večera, hotel..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -86,14 +86,14 @@ export default function SearchPage() {
             {/* Category Filter */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Category
+                Kategorija
               </label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               >
-                <option value="">All Categories</option>
+                <option value="">Sve kategorije</option>
                 {Object.values(ExpenseCategory).map((cat) => (
                   <option key={cat} value={cat}>
                     {cat}
@@ -105,11 +105,11 @@ export default function SearchPage() {
             {/* Group Filter */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Group (optional)
+                Grupa (opciono)
               </label>
               <input
                 type="text"
-                placeholder="Group ID"
+                placeholder="ID grupe"
                 value={groupId}
                 onChange={(e) => setGroupId(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -119,7 +119,7 @@ export default function SearchPage() {
             {/* Date From */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                From Date
+                Od datuma
               </label>
               <input
                 type="date"
@@ -132,7 +132,7 @@ export default function SearchPage() {
             {/* Date To */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                To Date
+                Do datuma
               </label>
               <input
                 type="date"
@@ -145,7 +145,7 @@ export default function SearchPage() {
             {/* Min Amount */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Min Amount
+                Minimalni iznos
               </label>
               <input
                 type="number"
@@ -159,7 +159,7 @@ export default function SearchPage() {
             {/* Max Amount */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Max Amount
+                Maksimalni iznos
               </label>
               <input
                 type="number"
@@ -178,13 +178,13 @@ export default function SearchPage() {
               disabled={isLoading}
               className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 transition"
             >
-              {isLoading ? 'Searching...' : 'Search'}
+              {isLoading ? 'Pretraga...' : 'Pretraži'}
             </button>
             <button
               onClick={handleClear}
               className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
             >
-              Clear Filters
+              Obriši filtere
             </button>
           </div>
         </div>
@@ -200,7 +200,8 @@ export default function SearchPage() {
         {total > 0 && !isLoading && (
           <div className="mb-4">
             <p className="text-gray-700">
-              Found <strong>{total}</strong> expense{total !== 1 ? 's' : ''}
+              Pronađeno <strong>{total}</strong>{' '}
+              {total === 1 ? 'trošak' : 'troškova'}
             </p>
           </div>
         )}
@@ -218,11 +219,11 @@ export default function SearchPage() {
                     </span>
                   </div>
                   <p className="text-sm text-gray-600 mb-2">
-                    Paid by <strong>{expense.payer.name}</strong> in{' '}
+                    Platio/la <strong>{expense.payer.name}</strong> u grupi{' '}
                     <strong>{expense.group.name}</strong>
                   </p>
                   <p className="text-sm text-gray-500">
-                    {new Date(expense.date).toLocaleDateString('en-US', {
+                    {new Date(expense.date).toLocaleDateString('sr-Latn', {
                       year: 'numeric',
                       month: 'long',
                       day: 'numeric',
@@ -234,7 +235,8 @@ export default function SearchPage() {
                     ${Number(expense.amount).toFixed(2)}
                   </p>
                   <p className="text-sm text-gray-500 mt-1">
-                    {expense.splits.length} participant{expense.splits.length !== 1 ? 's' : ''}
+                    {expense.splits.length}{' '}
+                    {expense.splits.length === 1 ? 'učesnik' : 'učesnika'}
                   </p>
                 </div>
               </div>
@@ -259,10 +261,10 @@ export default function SearchPage() {
               />
             </svg>
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              No expenses found
+              Nema pronađenih troškova
             </h3>
             <p className="text-gray-600">
-              Try adjusting your search filters or add new expenses
+              Pokušaj da prilagodiš filtere pretrage ili dodaj nove troškove
             </p>
           </div>
         )}

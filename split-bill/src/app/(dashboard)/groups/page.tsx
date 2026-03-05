@@ -50,13 +50,13 @@ export default function GroupsPage() {
         const response = await fetch('/api/groups');
 
         if (!response.ok) {
-          throw new Error('Failed to fetch groups');
+          throw new Error('Greška pri učitavanju grupa');
         }
 
         const data = await response.json();
         setGroups(data.groups);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Unknown error');
+        setError(err instanceof Error ? err.message : 'Nepoznata greška');
       } finally {
         setIsLoading(false);
       }
@@ -93,11 +93,11 @@ export default function GroupsPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900">Groups</h1>
+            <h1 className="text-4xl font-bold text-gray-900">Grupe</h1>
             <p className="text-gray-600 mt-2">
               {groups.length > 0
-                ? `You are a member of ${groups.length} group${groups.length !== 1 ? 's' : ''}`
-                : 'You have no groups yet'}
+                ? `Član si ${groups.length} grupe`
+                : 'Trenutno nemaš grupe'}
             </p>
           </div>
           {canCreateGroup && (
@@ -120,7 +120,7 @@ export default function GroupsPage() {
                 </svg>
               }
             >
-              Create Group
+              Kreiraj grupu
             </Button>
           )}
         </div>
@@ -142,19 +142,19 @@ export default function GroupsPage() {
               />
             </svg>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              No groups yet
+              Još nema grupa
             </h3>
             <p className="text-gray-600 mb-6">
               {canCreateGroup
-                ? 'Create a group to start sharing expenses with friends and family.'
-                : 'Ask a group owner to invite you via invite code.'}
+                ? 'Kreiraj grupu da počneš da deliš troškove sa prijateljima i porodicom.'
+                : 'Zamoli vlasnika grupe da te pozove putem pozivnog koda.'}
             </p>
             {canCreateGroup && (
               <Button
                 variant="primary"
                 onClick={() => router.push('/groups/create')}
               >
-                Create your first group
+                Kreiraj svoju prvu grupu
               </Button>
             )}
           </Card>
@@ -188,7 +188,7 @@ export default function GroupsPage() {
                     </div>
                     {group.owner.email === session?.user?.email && (
                       <span className="text-xs font-medium text-primary-700 bg-primary-50 px-2 py-1 rounded-full">
-                        Owner
+                        Vlasnik
                       </span>
                     )}
                   </div>
@@ -217,7 +217,10 @@ export default function GroupsPage() {
                           d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
                         />
                       </svg>
-                      <span>{group._count.members} member{group._count.members !== 1 ? 's' : ''}</span>
+                      <span>
+                        {group._count.members}{' '}
+                        {group._count.members === 1 ? 'član' : 'članova'}
+                      </span>
                     </div>
                     <div className="flex items-center gap-1 text-sm text-gray-500">
                       <svg
@@ -233,7 +236,10 @@ export default function GroupsPage() {
                           d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
                         />
                       </svg>
-                      <span>{group._count.expenses} expense{group._count.expenses !== 1 ? 's' : ''}</span>
+                      <span>
+                        {group._count.expenses}{' '}
+                        {group._count.expenses === 1 ? 'trošak' : 'troškova'}
+                      </span>
                     </div>
                   </div>
                 </Card>

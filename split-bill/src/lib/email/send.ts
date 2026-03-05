@@ -133,6 +133,21 @@ export async function sendGroupInviteEmail(
 }
 
 /**
+ * Send member joined group notification
+ */
+export async function sendMemberJoinedEmail(
+  to: string,
+  data: { newMemberName: string; newMemberEmail: string; groupName: string }
+): Promise<boolean> {
+  return sendEmail({
+    to,
+    subject: `👥 ${data.newMemberName} joined "${data.groupName}"`,
+    html: `<p>Hi,</p><p><strong>${data.newMemberName}</strong> (${data.newMemberEmail}) just joined your group <strong>${data.groupName}</strong> on SplitBill.</p>`,
+    text: `${data.newMemberName} (${data.newMemberEmail}) joined "${data.groupName}".`,
+  });
+}
+
+/**
  * Send settlement confirmed email
  */
 export async function sendSettlementEmail(

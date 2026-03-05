@@ -54,7 +54,7 @@ export default function CreateExpensePage() {
         const response = await fetch(`/api/groups/${groupId}`);
 
         if (!response.ok) {
-          throw new Error('Failed to fetch group');
+          throw new Error('Greška pri učitavanju grupe');
         }
 
         const data = await response.json();
@@ -68,7 +68,7 @@ export default function CreateExpensePage() {
           }))
         );
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Unknown error');
+        setError(err instanceof Error ? err.message : 'Nepoznata greška');
       } finally {
         setIsLoading(false);
       }
@@ -81,13 +81,13 @@ export default function CreateExpensePage() {
   const handleAutoSplit = () => {
     const parsedAmount = parseFloat(amount);
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
-      setError('Please enter a valid amount first');
+      setError('Molimo unesite validan iznos najpre');
       return;
     }
 
     const selectedMembers = members.length;
     if (selectedMembers === 0) {
-      setError('No members in group');
+      setError('Nema članova u grupi');
       return;
     }
 
@@ -121,13 +121,13 @@ export default function CreateExpensePage() {
     try {
       // Validation
       if (!description.trim()) {
-        setError('Description is required');
+        setError('Opis je obavezan');
         return;
       }
 
       const parsedAmount = parseFloat(amount);
       if (isNaN(parsedAmount) || parsedAmount <= 0) {
-        setError('Amount must be greater than 0');
+        setError('Iznos mora biti veći od 0');
         return;
       }
 
@@ -138,14 +138,14 @@ export default function CreateExpensePage() {
 
       if (Math.abs(roundedAmount - roundedTotal) > 0.01) {
         setError(
-          `Split amounts (${roundedTotal.toFixed(2)}) must equal total (${roundedAmount.toFixed(2)})`
+          `Iznos podele (${roundedTotal.toFixed(2)}) mora biti jednak ukupnom iznosu (${roundedAmount.toFixed(2)})`
         );
         return;
       }
 
       const activeSplits = splits.filter((split) => split.amount > 0);
       if (activeSplits.length === 0) {
-        setError('At least one person must be included in the split');
+        setError('Najmanje jedna osoba mora biti uključena u podelu');
         return;
       }
 
@@ -168,13 +168,13 @@ export default function CreateExpensePage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to create expense');
+        throw new Error(data.error || 'Greška pri kreiranju troška');
       }
 
       // Success - redirect to group page
       router.push(`/groups/${groupId}`);
     } catch (err: any) {
-      setError(err.message || 'An unexpected error occurred');
+      setError(err.message || 'Došlo je do neočekivane greške');
       setIsSaving(false);
     }
   };
@@ -213,12 +213,12 @@ export default function CreateExpensePage() {
                 </svg>
               }
             >
-              Back
+              Nazad
             </Button>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Add Expense</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Dodaj trošak</h1>
               <p className="text-sm text-gray-600 mt-1">
-                Create a new expense and split it among group members
+                Kreiraj novi trošak i podeli ga između članova grupe
               </p>
             </div>
           </div>
@@ -239,20 +239,20 @@ export default function CreateExpensePage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Description */}
             <Input
-              label="Description"
+              label="Opis"
               type="text"
-              placeholder="e.g., Dinner, Gas, Rent"
+              placeholder="npr. Večera, Gorivo, Kirija"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               disabled={isSaving}
               required
-              helperText="What was this expense for?"
+              helperText="Za šta je bio ovaj trošak?"
             />
 
             {/* Amount and Category Row */}
             <div className="grid grid-cols-2 gap-4">
               <Input
-                label="Amount"
+                label="Iznos"
                 type="number"
                 placeholder="0.00"
                 value={amount}
@@ -261,12 +261,12 @@ export default function CreateExpensePage() {
                 required
                 step="0.01"
                 min="0"
-                helperText="Total expense amount"
+                helperText="Ukupan iznos troška"
               />
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Category
+                  Kategorija
                 </label>
                 <select
                   value={category}
@@ -286,7 +286,7 @@ export default function CreateExpensePage() {
 
             {/* Date */}
             <Input
-              label="Date"
+              label="Datum"
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
@@ -298,7 +298,7 @@ export default function CreateExpensePage() {
             <div>
               <div className="flex items-center justify-between mb-4">
                 <label className="block text-sm font-medium text-gray-700">
-                  Split Between Members
+                  Podeli između članova
                 </label>
                 {amount && parseFloat(amount) > 0 && (
                   <button
@@ -307,14 +307,14 @@ export default function CreateExpensePage() {
                     disabled={isSaving}
                     className="text-sm text-primary-600 hover:text-primary-700 font-medium disabled:opacity-50"
                   >
-                    Auto Split
+                    Automatska podela
                   </button>
                 )}
               </div>
 
               <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
                 {members.length === 0 ? (
-                  <p className="text-sm text-gray-600">No group members</p>
+                  <p className="text-sm text-gray-600">Nema članova u grupi</p>
                 ) : (
                   members.map((member) => {
                     const split = splits.find(
@@ -329,7 +329,7 @@ export default function CreateExpensePage() {
                           {member.user.name}
                           {member.user.id === session?.user?.id && (
                             <span className="ml-2 text-xs text-gray-500">
-                              (You)
+                              (Ti)
                             </span>
                           )}
                         </span>
@@ -361,11 +361,11 @@ export default function CreateExpensePage() {
                 <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                   <div className="text-sm space-y-1">
                     <p className="text-blue-900">
-                      <span className="font-medium">Total:</span> $
+                      <span className="font-medium">Ukupno:</span> $
                       {parseFloat(amount).toFixed(2) || '0.00'}
                     </p>
                     <p className="text-blue-700">
-                      <span className="font-medium">Assigned:</span> $
+                      <span className="font-medium">Dodeljeno:</span> $
                       {splits
                         .reduce((sum, split) => sum + split.amount, 0)
                         .toFixed(2)}
@@ -384,7 +384,7 @@ export default function CreateExpensePage() {
                 disabled={isSaving}
                 className="flex-1"
               >
-                Cancel
+                Otkaži
               </Button>
               <Button
                 type="submit"
@@ -393,7 +393,7 @@ export default function CreateExpensePage() {
                 disabled={isSaving || members.length === 0}
                 className="flex-1"
               >
-                {isSaving ? 'Creating...' : 'Create Expense'}
+                {isSaving ? 'Kreiranje...' : 'Kreiraj trošak'}
               </Button>
             </div>
           </form>

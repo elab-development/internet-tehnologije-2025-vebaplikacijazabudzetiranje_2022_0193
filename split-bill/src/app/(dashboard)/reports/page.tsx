@@ -87,13 +87,13 @@ export default function ReportsPage() {
       const response = await fetch(url);
 
       if (!response.ok) {
-        throw new Error('Failed to fetch reports');
+        throw new Error('Greška pri učitavanju izveštaja');
       }
 
       const reportData = await response.json();
       setData(reportData);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      setError(err instanceof Error ? err.message : 'Nepoznata greška');
     } finally {
       setIsLoading(false);
     }
@@ -118,7 +118,7 @@ export default function ReportsPage() {
       <div className="min-h-screen bg-gray-50 p-8">
         <div className="max-w-4xl mx-auto">
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="text-red-800">{error || 'No data available'}</p>
+            <p className="text-red-800">{error || 'Nema dostupnih podataka'}</p>
           </div>
         </div>
       </div>
@@ -127,7 +127,7 @@ export default function ReportsPage() {
 
   // Prepare chart data
   const pieData = {
-    labels: Object.keys(data.byCategory).length > 0 ? Object.keys(data.byCategory) : ['No data'],
+    labels: Object.keys(data.byCategory).length > 0 ? Object.keys(data.byCategory) : ['Nema podataka'],
     datasets: [
       {
         data: Object.keys(data.byCategory).length > 0 ? Object.values(data.byCategory) : [1],
@@ -148,10 +148,10 @@ export default function ReportsPage() {
   };
 
   const barData = {
-    labels: Object.keys(data.byUser).length > 0 ? Object.keys(data.byUser) : ['No data'],
+    labels: Object.keys(data.byUser).length > 0 ? Object.keys(data.byUser) : ['Nema podataka'],
     datasets: [
       {
-        label: 'Total Paid',
+        label: 'Ukupno plaćeno',
         data: Object.keys(data.byUser).length > 0 ? Object.values(data.byUser) : [0],
         backgroundColor: '#16a34a',
         borderRadius: 4,
@@ -160,10 +160,10 @@ export default function ReportsPage() {
   };
 
   const lineData = {
-    labels: Object.keys(data.byMonth).length > 0 ? Object.keys(data.byMonth) : ['No data'],
+    labels: Object.keys(data.byMonth).length > 0 ? Object.keys(data.byMonth) : ['Nema podataka'],
     datasets: [
       {
-        label: 'Monthly Expenses',
+        label: 'Mesečni troškovi',
         data: Object.keys(data.byMonth).length > 0 ? Object.values(data.byMonth) : [0],
         borderColor: '#16a34a',
         backgroundColor: 'rgba(22, 163, 74, 0.1)',
@@ -188,7 +188,7 @@ export default function ReportsPage() {
     if (!data) return;
 
     const rows = [
-      ['Description', 'Category', 'Amount', 'Payer', 'Group', 'Date'],
+      ['Opis', 'Kategorija', 'Iznos', 'Platio/la', 'Grupa', 'Datum'],
       ...data.topExpenses.map((exp) => [
         exp.description,
         exp.category,
@@ -211,21 +211,21 @@ export default function ReportsPage() {
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Reports & Analytics</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Izveštaji i analitika</h1>
           <button
             onClick={handleExportCSV}
             className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
           >
-            Export CSV
+            Izvezi CSV
           </button>
         </div>
 
         {/* Filters Section */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Filters</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Filteri</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">From Date</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Od datuma</label>
               <input
                 type="date"
                 value={filters.from}
@@ -234,7 +234,7 @@ export default function ReportsPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">To Date</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Do datuma</label>
               <input
                 type="date"
                 value={filters.to}
@@ -243,19 +243,19 @@ export default function ReportsPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Kategorija</label>
               <select
                 value={filters.category}
                 onChange={(e) => setFilters({ ...filters, category: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               >
-                <option value="ALL">All Categories</option>
-                <option value="FOOD">Food</option>
+                <option value="ALL">Sve kategorije</option>
+                <option value="FOOD">Hrana</option>
                 <option value="TRANSPORT">Transport</option>
-                <option value="ACCOMMODATION">Accommodation</option>
-                <option value="ENTERTAINMENT">Entertainment</option>
-                <option value="BILLS">Bills</option>
-                <option value="OTHER">Other</option>
+                <option value="ACCOMMODATION">Smeštaj</option>
+                <option value="ENTERTAINMENT">Zabava</option>
+                <option value="BILLS">Računi</option>
+                <option value="OTHER">Ostalo</option>
               </select>
             </div>
             <div className="flex items-end">
@@ -263,7 +263,7 @@ export default function ReportsPage() {
                 onClick={() => fetchReports()}
                 className="w-full px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium"
               >
-                Apply Filters
+                Primeni filtere
               </button>
             </div>
           </div>
@@ -272,27 +272,27 @@ export default function ReportsPage() {
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow-sm p-6">
-            <p className="text-sm font-medium text-gray-600">Total Expenses</p>
+            <p className="text-sm font-medium text-gray-600">Ukupni troškovi</p>
             <p className="text-3xl font-bold text-gray-900 mt-2">
               ${data.totalExpenses.toFixed(2)}
             </p>
-            <p className="text-xs text-gray-500 mt-2">{data.count} expenses</p>
+            <p className="text-xs text-gray-500 mt-2">{data.count} troškova</p>
           </div>
 
           <div className="bg-white rounded-lg shadow-sm p-6">
-            <p className="text-sm font-medium text-gray-600">Number of Expenses</p>
+            <p className="text-sm font-medium text-gray-600">Broj troškova</p>
             <p className="text-3xl font-bold text-gray-900 mt-2">{data.count}</p>
             <p className="text-xs text-gray-500 mt-2">
-              Avg: ${data.count > 0 ? (data.totalExpenses / data.count).toFixed(2) : '0.00'}
+              Prosek: ${data.count > 0 ? (data.totalExpenses / data.count).toFixed(2) : '0.00'}
             </p>
           </div>
 
           <div className="bg-white rounded-lg shadow-sm p-6">
-            <p className="text-sm font-medium text-gray-600">Average Expense</p>
+            <p className="text-sm font-medium text-gray-600">Prosečan trošak</p>
             <p className="text-3xl font-bold text-gray-900 mt-2">
               ${data.count > 0 ? (data.totalExpenses / data.count).toFixed(2) : '0.00'}
             </p>
-            <p className="text-xs text-gray-500 mt-2">Per expense</p>
+            <p className="text-xs text-gray-500 mt-2">Po trošku</p>
           </div>
         </div>
 
@@ -300,7 +300,7 @@ export default function ReportsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Category Pie Chart */}
           <div className="bg-white rounded-lg shadow-sm p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Expenses by Category</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Troškovi po kategoriji</h2>
             <div className="relative h-64">
               <Pie data={pieData} options={chartOptions} />
             </div>
@@ -308,7 +308,7 @@ export default function ReportsPage() {
 
           {/* User Bar Chart */}
           <div className="bg-white rounded-lg shadow-sm p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Expenses by Person</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Troškovi po osobi</h2>
             <div className="relative h-64">
               <Bar data={barData} options={chartOptions} />
             </div>
@@ -317,7 +317,7 @@ export default function ReportsPage() {
 
         {/* Monthly Trend */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Monthly Trend</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Mesečni trend</h2>
           <div className="relative h-72">
             <Line data={lineData} options={chartOptions} />
           </div>
@@ -325,7 +325,7 @@ export default function ReportsPage() {
 
         {/* Top Expenses */}
         <div className="bg-white rounded-lg shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Top Expenses</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Najveći troškovi</h2>
           {data.topExpenses.length > 0 ? (
             <div className="space-y-3">
               {data.topExpenses.map((exp) => (
@@ -347,7 +347,7 @@ export default function ReportsPage() {
               ))}
             </div>
           ) : (
-            <p className="text-gray-600">No expenses found</p>
+            <p className="text-gray-600">Nema pronađenih troškova</p>
           )}
         </div>
       </div>

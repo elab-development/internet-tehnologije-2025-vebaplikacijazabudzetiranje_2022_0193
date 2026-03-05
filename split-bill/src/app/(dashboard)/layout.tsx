@@ -28,7 +28,7 @@ export default function DashboardLayout({
   // Navigation items
   const navItems = [
     {
-      name: 'Dashboard',
+      name: 'Kontrolna tabla',
       href: '/dashboard',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -37,7 +37,7 @@ export default function DashboardLayout({
       ),
     },
     {
-      name: 'Groups',
+      name: 'Grupe',
       href: '/groups',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -46,7 +46,7 @@ export default function DashboardLayout({
       ),
     },
     {
-      name: 'Reports',
+      name: 'Izveštaji',
       href: '/reports',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -55,7 +55,7 @@ export default function DashboardLayout({
       ),
     },
     {
-      name: 'Search',
+      name: 'Pretraga',
       href: '/search',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -64,7 +64,7 @@ export default function DashboardLayout({
       ),
     },
     {
-      name: 'Profile',
+      name: 'Profil',
       href: '/profile',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -73,7 +73,7 @@ export default function DashboardLayout({
       ),
     },
     {
-      name: 'API Docs',
+      name: 'API dokumentacija',
       href: '/api-docs',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
