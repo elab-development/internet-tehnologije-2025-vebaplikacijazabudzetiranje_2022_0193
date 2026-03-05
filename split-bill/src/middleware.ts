@@ -22,6 +22,7 @@ const EDITOR_PREFIXES = ['/groups/create'];
 
 export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
+  console.log('[middleware]', req.method, path);
 
   // ============================================
   // CORS - Handle preflight requests
@@ -33,16 +34,16 @@ export async function middleware(req: NextRequest) {
   // ============================================
   // RATE LIMITING
   // ============================================
-  if (
+  const isStrictPath =
     path.startsWith('/api/auth/register') ||
     path.startsWith('/api/auth/callback/credentials') ||
-    path.startsWith('/api/auth/signin')
-  ) {
+    path.startsWith('/api/auth/signin');
+
+  if (isStrictPath) {
     const rateLimitResponse = await strictRateLimit(req);
     if (rateLimitResponse) return rateLimitResponse;
-  }
-
-  if (path.startsWith('/api/')) {
+  } else if (path.startsWith('/api/')) {
+    // Only apply general API rate limit if not already covered by strict limiter
     const rateLimitResponse = await apiRateLimit(req);
     if (rateLimitResponse) return rateLimitResponse;
   }

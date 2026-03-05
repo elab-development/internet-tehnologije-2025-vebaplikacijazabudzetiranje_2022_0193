@@ -1,15 +1,10 @@
-import DOMPurify from 'isomorphic-dompurify';
-
 /**
- * Sanitize HTML input to prevent XSS attacks
- * Koristi DOMPurify za čišćenje potencijalno opasnog HTML-a
+ * Sanitize HTML input to prevent XSS attacks.
+ * Strips all HTML tags (equivalent to DOMPurify with ALLOWED_TAGS: [], KEEP_CONTENT: true).
+ * Uses regex instead of isomorphic-dompurify/jsdom to stay compatible with Vercel Edge/Node runtime.
  */
 export function sanitizeHtml(dirty: string): string {
-  return DOMPurify.sanitize(dirty, {
-    ALLOWED_TAGS: [], // Ne dozvoljavaj nikakve HTML tagove
-    ALLOWED_ATTR: [],
-    KEEP_CONTENT: true, // Zadrži tekstualni sadržaj
-  });
+  return dirty.replace(/<[^>]*>/g, '');
 }
 
 /**

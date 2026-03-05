@@ -89,9 +89,13 @@ import { sendVerificationEmail } from '@/lib/email/send';
  * }
  */
 export async function POST(req: NextRequest) {
+  console.log('[register] POST called — url:', req.url);
+  console.log('[register] ENV check — DOCKER_BUILD:', process.env.DOCKER_BUILD ?? '(not set)', '| NODE_ENV:', process.env.NODE_ENV, '| hasDB:', !!process.env.DATABASE_URL, '| hasNextAuthUrl:', !!process.env.NEXTAUTH_URL);
+
   try {
     // 1. Parse request body
     const body = await req.json();
+    console.log('[register] body parsed OK, email:', (body as { email?: string })?.email);
 
     // 2. Sanitize input (XSS protection)
     const sanitizedBody = sanitizeObject(body);
@@ -105,6 +109,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (existingUser) {
+      console.log('[register] email already exists:', validatedData.email);
       return createErrorResponse(
         'Email already registered',
         409 // Conflict
@@ -112,6 +117,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 5. Hash lozinke
+    console.log('[register] hashing password...');
     const passwordHash = await bcrypt.hash(validatedData.password, 10);
 
     // 6. Kreiraj korisnika u bazi
@@ -132,8 +138,10 @@ export async function POST(req: NextRequest) {
         createdAt: true,
       },
     });
+    console.log('[register] user created:', user.id);
     // 7. Posalji verifikacioni email
     const verificationUrl = `${process.env.NEXTAUTH_URL}/api/auth/verify-email?userId=${user.id}`;
+    console.log('[register] sending verification email to:', user.email);
 
     await sendVerificationEmail(user.email, {
       name: user.name,
@@ -156,6 +164,7 @@ export async function POST(req: NextRequest) {
     );
   } catch (error) {
     // Centralizovani error handling
+    console.error('[register] caught error:', error);
     return handleApiError(error);
   }
 }
