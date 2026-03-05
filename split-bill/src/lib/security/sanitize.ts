@@ -61,8 +61,8 @@ export function sanitizeObject<T extends Record<string, any>>(obj: T): T {
 export function sanitizeEmail(email: string): string {
   const sanitized = sanitizeInput(email).toLowerCase();
 
-  // Basic email format validation
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  // Basic email format validation (strict charset to reject HTML entities)
+  const emailRegex = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
   if (!emailRegex.test(sanitized)) {
     throw new Error('Invalid email format');
   }
